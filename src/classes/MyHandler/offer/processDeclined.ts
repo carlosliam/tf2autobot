@@ -292,40 +292,36 @@ export function sendToAdmin(
     const customInitializer = bot.options.steamChat.customInitializer.declinedTradeSummary;
     const isCustomPricer = bot.pricelist.isUseCustomPricer;
 
-    bot.messageAdmins(
-        'trade',
-        `${customInitializer ? customInitializer : '/me'} Trade #${
+    bot.messageAdmins('trade', `${customInitializer ? customInitializer : '/me'} Trade #${
             offer.id
         } with ${offer.partner.getSteamID64()} was declined. ❌` +
-            t.summarizeToChat(offer, bot, 'declined', false, value, keyPrices, true, isOfferSent) +
-            (offerMessage.length !== 0 ? `\n\n💬 Offer message: "${offerMessage}"` : '') +
-            (itemList !== '-' ? `\n\nItem lists:\n${itemList}` : '') +
-            `\n\n${cTKeyRate} ${keyPrices.buy.toString()}/${keyPrices.sell.toString()}` +
-            ` (${keyPrices.src === 'manual' ? 'manual' : isCustomPricer ? 'custom-pricer' : 'prices.tf'})` +
-            `${
-                autokeys.isEnabled
-                    ? ' | Autokeys: ' +
-                      (autokeys.getActiveStatus
-                          ? '✅' +
-                            (status.isBankingKeys ? ' (banking)' : status.isBuyingKeys ? ' (buying)' : ' (selling)')
-                          : '🛑')
-                    : ''
-            }` +
-            `\n${cTPureStock} ${t.pure.stock(bot).join(', ').toString()}` +
-            `\n${cTTotalItems} ${bot.inventoryManager.getInventory.getTotalItems}${
-                slots !== undefined ? `/${slots}` : ''
-            }` +
-            `\n${cTTimeTaken} ${t.convertTime(
-                null,
-                timeTakenToProcessOrConstruct,
-                undefined,
-                isOfferSent,
-                tSum.showDetailedTimeTaken,
-                tSum.showTimeTakenInMS
-            )}` +
-            `\n\nVersion ${process.env.BOT_VERSION}`,
-        []
-    );
+        t.summarizeToChat(offer, bot, 'declined', false, value, keyPrices, true, isOfferSent) +
+        (offerMessage.length !== 0 ? `\n\n💬 Offer message: "${offerMessage}"` : '') +
+        (itemList !== '-' ? `\n\nItem lists:\n${itemList}` : '') +
+        `\n\n${cTKeyRate} ${keyPrices.buy.toString()}/${keyPrices.sell.toString()}` +
+        ` (${keyPrices.src === 'manual' ? 'manual' : isCustomPricer ? 'custom-pricer' : 'prices.tf'})` +
+        `${
+            autokeys.isEnabled
+                ? ' | Autokeys: ' +
+                (autokeys.getActiveStatus
+                    ? '✅' +
+                    (status.isBankingKeys ? ' (banking)' : status.isBuyingKeys ? ' (buying)' : ' (selling)')
+                    : '🛑')
+                : ''
+        }` +
+        `\n${cTPureStock} ${t.pure.stock(bot).join(', ').toString()}` +
+        `\n${cTTotalItems} ${bot.inventoryManager.getInventory.getTotalItems}${
+            slots !== undefined ? `/${slots}` : ''
+        }` +
+        `\n${cTTimeTaken} ${t.convertTime(
+            null,
+            timeTakenToProcessOrConstruct,
+            undefined,
+            isOfferSent,
+            tSum.showDetailedTimeTaken,
+            tSum.showTimeTakenInMS
+        )}` +
+        `\n\nVersion ${process.env.BOT_VERSION}`, []);
 }
 
 interface Declined {

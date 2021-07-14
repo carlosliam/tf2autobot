@@ -26,28 +26,22 @@ export default class MiscCommands {
         const custom = opt.customReply.reply;
         if (command === 'time') {
             const timeWithEmojis = timeNow(this.bot.options);
-            this.bot.sendMessage(
-                steamID,
-                custom
-                    ? custom
-                          .replace(/%emoji%/g, timeWithEmojis.emoji)
-                          .replace(/%time%/g, timeWithEmojis.time)
-                          .replace(/%note%/g, timeWithEmojis.note)
-                    : `It is currently the following time in my owner's timezone: ${timeWithEmojis.emoji} ${
-                          timeWithEmojis.time + (timeWithEmojis.note !== '' ? `.\n\n${timeWithEmojis.note}.` : '.')
-                      }`
-            );
+            this.bot.sendMessage(steamID, custom
+                ? custom
+                    .replace(/%emoji%/g, timeWithEmojis.emoji)
+                    .replace(/%time%/g, timeWithEmojis.time)
+                    .replace(/%note%/g, timeWithEmojis.note)
+                : `It is currently the following time in my owner's timezone: ${timeWithEmojis.emoji} ${
+                    timeWithEmojis.time + (timeWithEmojis.note !== '' ? `.\n\n${timeWithEmojis.note}.` : '.')
+                }`);
         } else if (command === 'uptime') {
             const botUptime = uptime();
             this.bot.sendMessage(steamID, custom ? custom.replace(/%uptime%/g, botUptime) : botUptime);
         } else if (command === 'pure') {
             const pureStock = pure.stock(this.bot);
-            this.bot.sendMessage(
-                steamID,
-                custom
-                    ? custom.replace(/%pure%/g, pureStock.join(' and '))
-                    : `💰 I have ${pureStock.join(' and ')} in my inventory.`
-            );
+            this.bot.sendMessage(steamID, custom
+                ? custom.replace(/%pure%/g, pureStock.join(' and '))
+                : `💰 I have ${pureStock.join(' and ')} in my inventory.`);
         } else if (command === 'rate') {
             const key = this.bot.pricelist.getKeyPrices;
             const isCustomPricer = this.bot.pricelist.isUseCustomPricer;
@@ -59,36 +53,30 @@ export default class MiscCommands {
                     ? 'custom-pricer'
                     : 'https://api.prices.tf/items/5021;6?src=bptf';
 
-            this.bot.sendMessage(
-                steamID,
-                custom
-                    ? custom
-                          .replace(/%keyRate%/g, keyRate)
-                          .replace(/%keyPrices%/g, `${key.buy.metal} / ${key.sell.toString()}`)
-                          .replace(/%source%/g, source)
-                    : 'I value 🔑 Mann Co. Supply Crate Keys at ' +
-                          keyRate +
-                          '. This means that one key is the same as ' +
-                          keyRate +
-                          ', and ' +
-                          keyRate +
-                          ' is the same as one key.' +
-                          `\n\nKey rate source: ${source}`
-            );
+            this.bot.sendMessage(steamID, custom
+                ? custom
+                    .replace(/%keyRate%/g, keyRate)
+                    .replace(/%keyPrices%/g, `${key.buy.metal} / ${key.sell.toString()}`)
+                    .replace(/%source%/g, source)
+                : 'I value 🔑 Mann Co. Supply Crate Keys at ' +
+                keyRate +
+                '. This means that one key is the same as ' +
+                keyRate +
+                ', and ' +
+                keyRate +
+                ' is the same as one key.' +
+                `\n\nKey rate source: ${source}`);
         } else if (command === 'owner') {
             const firstAdmin = this.bot.getAdmins[0];
             const steamURL = `https://steamcommunity.com/profiles/${firstAdmin.toString()}`;
             const bptfURL = `https://backpack.tf/profiles/${firstAdmin.toString()}`;
 
-            this.bot.sendMessage(
-                steamID,
-                custom
-                    ? custom
-                          .replace(/%steamurl%/g, steamURL)
-                          .replace(/%bptfurl%/g, bptfURL)
-                          .replace(/%steamid%/, firstAdmin.toString())
-                    : `• Steam: ${steamURL}\n• Backpack.tf: ${bptfURL}`
-            );
+            this.bot.sendMessage(steamID, custom
+                ? custom
+                    .replace(/%steamurl%/g, steamURL)
+                    .replace(/%bptfurl%/g, bptfURL)
+                    .replace(/%steamid%/, firstAdmin.toString())
+                : `• Steam: ${steamURL}\n• Backpack.tf: ${bptfURL}`);
         } else if (command === 'discord') {
             const inviteURL = (opt as Discord).inviteURL;
             let reply: string;

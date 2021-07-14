@@ -197,7 +197,9 @@ export default class Bot {
 
     messageAdmins(type: string, message: string, exclude: string[] | SteamID[]): void;
 
-    messageAdmins(...args: [string, string[] | SteamID[]] | [string, string, string[] | SteamID[]]): void {
+    async messageAdmins(
+        ...args: [string, string[] | SteamID[]] | [string, string, string[] | SteamID[]]
+    ): Promise<void> {
         const type: string | null = args.length === 2 ? null : args[0];
 
         if (type !== null && !this.alertTypes.includes(type)) {
@@ -209,9 +211,12 @@ export default class Bot {
             steamid.toString()
         );
 
-        this.admins
-            .filter(steamID => !exclude.includes(steamID.toString()))
-            .forEach(steamID => this.sendMessage(steamID, message));
+        await Promise.all(
+            this.admins
+                .filter(steamID => !exclude.includes(steamID.toString()))
+                .map(steamID => this.sendMessage(steamID, message))
+        );
+        return;
     }
 
     set setReady(isReady: boolean) {
@@ -831,7 +836,7 @@ export default class Bot {
         });
     }
 
-    sendMessage(steamID: SteamID | string, message: string): void {
+    sendMessage(steamID: SteamID | string, message: string): Promise<void> {
         const steamID64 = steamID.toString();
         const friend = this.friends.getFriend(steamID64);
 
@@ -846,14 +851,16 @@ export default class Bot {
 
         // else, we use the new chat.sendFriendMessage
         const friendName = friend.player_name;
-        this.client.chat.sendFriendMessage(steamID, message, { chatEntryType: 1 }, err => {
-            if (err) {
-                log.warn(`Failed to send message to ${friendName} (${steamID64}):`, err);
-                return;
-            }
+        return new Promise(resolve =>
+            this.client.chat.sendFriendMessage(steamID, message, { chatEntryType: 1 }, err => {
+                if (err) {
+                    log.warn(`Failed to send message to ${friendName} (${steamID64}):`, err);
+                }
 
-            log.info(`Message sent to ${friendName} (${steamID64}): ${message}`);
-        });
+                log.info(`Message sent to ${friendName} (${steamID64}): ${message}`);
+                resolve();
+            })
+        );
     }
 
     private getPartnerDetails(steamID: SteamID | string): Promise<string> {

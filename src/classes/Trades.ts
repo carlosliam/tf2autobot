@@ -443,21 +443,18 @@ export default class Trades {
                         false
                     );
 
-                    this.bot.messageAdmins(
-                        `Failed to ${action} on the offer #${offer.id}:` +
-                            summary +
-                            (action === 'counter'
-                                ? '\n\nThe offer has been automatically declined.'
-                                : `\n\nRetrying in 30 seconds, you can try to force ${action} this trade, reply "!f${action} ${offer.id}" now.`) +
-                            `\n\nError: ${
-                                (err as CustomError).eresult
-                                    ? `${
-                                          TradeOfferManager.EResult[(err as CustomError).eresult] as string
-                                      } - https://steamerrors.com/${(err as CustomError).eresult}`
-                                    : (err as Error).message
-                            }`,
-                        []
-                    );
+                    this.bot.messageAdmins(`Failed to ${action} on the offer #${offer.id}:` +
+                        summary +
+                        (action === 'counter'
+                            ? '\n\nThe offer has been automatically declined.'
+                            : `\n\nRetrying in 30 seconds, you can try to force ${action} this trade, reply "!f${action} ${offer.id}" now.`) +
+                        `\n\nError: ${
+                            (err as CustomError).eresult
+                                ? `${
+                                    TradeOfferManager.EResult[(err as CustomError).eresult] as string
+                                } - https://steamerrors.com/${(err as CustomError).eresult}`
+                                : (err as Error).message
+                        }`, []);
                 }
             }
         }
@@ -652,22 +649,19 @@ export default class Trades {
                                         false
                                     );
 
-                                    this.bot.messageAdmins(
-                                        `Error while trying to accept mobile confirmation on offer #${offer.id}:` +
-                                            summary +
-                                            `\n\nThe offer might already get cancelled. You can check if this offer is still active by` +
-                                            ` sending "!trade ${offer.id}` +
-                                            `\n\nError: ${
-                                                (err as CustomError).eresult
-                                                    ? `${
-                                                          TradeOfferManager.EResult[
-                                                              (err as CustomError).eresult
-                                                          ] as string
-                                                      } - https://steamerrors.com/${(err as CustomError).eresult}`
-                                                    : (err as Error).message
-                                            }`,
-                                        []
-                                    );
+                                    this.bot.messageAdmins(`Error while trying to accept mobile confirmation on offer #${offer.id}:` +
+                                        summary +
+                                        `\n\nThe offer might already get cancelled. You can check if this offer is still active by` +
+                                        ` sending "!trade ${offer.id}` +
+                                        `\n\nError: ${
+                                            (err as CustomError).eresult
+                                                ? `${
+                                                    TradeOfferManager.EResult[
+                                                        (err as CustomError).eresult
+                                                        ] as string
+                                                } - https://steamerrors.com/${(err as CustomError).eresult}`
+                                                : (err as Error).message
+                                        }`, []);
                                 }
                             }
 
@@ -1428,14 +1422,11 @@ export default class Trades {
                 } else {
                     const errStringify = JSON.stringify(err);
                     const errMessage = errStringify === '' ? (err as Error)?.message : errStringify;
-                    return this.bot.messageAdmins(
-                        `❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
-                            'time',
-                            this.escrowCheckFailedCount,
-                            true
-                        )} because backpack.tf is currently down: ${errMessage}`,
-                        []
-                    );
+                    return this.bot.messageAdmins(`❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
+                        'time',
+                        this.escrowCheckFailedCount,
+                        true
+                    )} because backpack.tf is currently down: ${errMessage}`, []);
                 }
             }
 
@@ -1461,14 +1452,11 @@ export default class Trades {
                         this.escrowCheckFailedCount
                     );
                 } else {
-                    return this.bot.messageAdmins(
-                        `❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
-                            'time',
-                            this.escrowCheckFailedCount,
-                            true
-                        )} because Steam is currently down.`,
-                        []
-                    );
+                    return this.bot.messageAdmins(`❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
+                        'time',
+                        this.escrowCheckFailedCount,
+                        true
+                    )} because Steam is currently down.`, []);
                 }
             } else {
                 // Good to perform automatic restart
@@ -1487,30 +1475,21 @@ export default class Trades {
                             sendAlert('failedRestartError', this.bot, null, null, err);
                         });
                 } else {
-                    this.bot.messageAdmins(
-                        `⚠️ [Escrow check failed alert] Current failed count: ${
-                            this.escrowCheckFailedCount
-                        }\n\n${t.uptime()}`,
-                        []
-                    );
+                    this.bot.messageAdmins(`⚠️ [Escrow check failed alert] Current failed count: ${
+                        this.escrowCheckFailedCount
+                    }\n\n${t.uptime()}`, []);
                     void this.bot.botManager
                         .restartProcess()
                         .then(restarting => {
                             if (!restarting) {
-                                return this.bot.messageAdmins(
-                                    `❌ Automatic restart on Escrow check problem failed because you're not running the bot with PM2!`,
-                                    []
-                                );
+                                return this.bot.messageAdmins(`❌ Automatic restart on Escrow check problem failed because you're not running the bot with PM2!`, []);
                             }
                             this.bot.messageAdmins(`🔄 Restarting...`, []);
                             this.bot.sendMessage(steamID, '🙇‍♂️ Sorry! Something went wrong. I am restarting myself...');
                         })
                         .catch(err => {
                             log.warn('Error occurred while trying to restart: ', err);
-                            this.bot.messageAdmins(
-                                `❌ An error occurred while trying to restart: ${(err as Error).message}`,
-                                []
-                            );
+                            this.bot.messageAdmins(`❌ An error occurred while trying to restart: ${(err as Error).message}`, []);
                         });
                 }
             }

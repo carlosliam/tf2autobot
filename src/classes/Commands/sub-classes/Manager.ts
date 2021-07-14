@@ -54,10 +54,7 @@ export default class ManagerCommands {
             const assetids = this.bot.inventoryManager.getInventory.findBySKU(SKU.fromObject(item), false);
             if (assetids.length === 0) {
                 // No backpack expanders
-                return this.bot.sendMessage(
-                    steamID,
-                    `❌ I couldn't find any ${!item.craftable ? 'Non-Craftable' : ''} Backpack Expander`
-                );
+                return this.bot.sendMessage(steamID, `❌ I couldn't find any ${!item.craftable ? 'Non-Craftable' : ''} Backpack Expander`);
             }
 
             this.bot.tf2gc.useItem(assetids[0], err => {
@@ -79,16 +76,13 @@ export default class ManagerCommands {
                 const sku = this.bot.inventoryManager.getInventory.findByAssetid(targetedAssetId);
 
                 if (params.i_am_sure !== 'yes_i_am') {
-                    return this.bot.sendMessage(
-                        steamID,
-                        `⚠️ Are you sure that you want to ${command} ${
+                    return this.bot.sendMessage(steamID, `⚠️ Are you sure that you want to ${command} ${
                             sku === null
                                 ? `the item with asset ID ${targetedAssetId}`
                                 : `${this.bot.schema.getName(SKU.fromString(sku), false)}`
                         }?` +
-                            `\n- This process is irreversible and will ${command} the item from your bot's backpack!` +
-                            `\n- If you are sure, try again with i_am_sure=yes_i_am as a parameter`
-                    );
+                        `\n- This process is irreversible and will ${command} the item from your bot's backpack!` +
+                        `\n- If you are sure, try again with i_am_sure=yes_i_am as a parameter`);
                 }
 
                 return this.bot.tf2gc[command === 'use' ? 'useItem' : 'deleteItem'](targetedAssetId, err => {
@@ -107,61 +101,55 @@ export default class ManagerCommands {
             }
 
             if (params.name !== undefined || params.item !== undefined) {
-                return this.bot.sendMessage(
-                    steamID,
-                    command === 'use'
-                        ? '⚠️ Please only use sku property.' +
-                              '\n\nBelow are some common items to use:\n • ' +
-                              [
-                                  'Gift-Stuffed Stocking 2013: 5718;6;untradable',
-                                  'Gift-Stuffed Stocking 2017: 5886;6;untradable',
-                                  'Gift-Stuffed Stocking 2018: 5900;6;untradable',
-                                  'Gift-Stuffed Stocking 2019: 5910;6;untradable',
-                                  'Gift-Stuffed Stocking 2020: 5923;6;untradable'
-                              ].join('\n• ')
-                        : '⚠️ Please only use sku property.' +
-                              '\n\nBelow are some common items to delete:\n • ' +
-                              [
-                                  'Smissmas Sweater: 16391;15;untradable;w1;pk391',
-                                  'Soul Gargoyle: 5826;6;uncraftable;untradable',
-                                  'Noise Maker - TF Birthday: 536;6;untradable',
-                                  'Bronze Dueling Badge: 242;6;untradable',
-                                  'Silver Dueling Badge: 243;6;untradable',
-                                  'Gold Dueling Badge: 244;6;untradable',
-                                  'Platinum Dueling Badge: 245;6;untradable',
-                                  'Mercenary: 166;6;untradable',
-                                  'Soldier of Fortune: 165;6;untradable',
-                                  'Grizzled Veteran: 164;6;untradable',
-                                  'Primeval Warrior: 170;6;untradable',
-                                  'Professor Speks: 343;6;untradable',
-                                  'Mann Co. Cap: 261;6;untradable',
-                                  'Mann Co. Online Cap: 994;6;untradable',
-                                  'Proof of Purchase: 471;6;untradable',
-                                  'Mildly Disturbing Halloween Mask: 115;6;untradable',
-                                  'Seal Mask: 582;6;untradable',
-                                  'Pyrovision Goggles: 743;6;untradable',
-                                  'Giftapult: 5083;6;untradable',
-                                  'Spirit Of Giving: 655;11;untradable',
-                                  'Party Hat: 537;6;untradable',
-                                  'Name Tag: 5020;6;untradable',
-                                  'Description Tag: 5044;6;untradable',
-                                  'Ghastly Gibus: 584;6;untradable',
-                                  'Ghastlier Gibus: 279;6;untradable',
-                                  'Power Up Canteen: 489;6;untradable',
-                                  'Bombinomicon: 583;6;untradable',
-                                  'Skull Island Topper: 941;6;untradable',
-                                  'Spellbook Page: 8935;6;untradable',
-                                  'Gun Mettle Campaign Coin: 5809;6;untradable',
-                                  'MONOCULUS!: 581;6;untradable'
-                              ].join('\n• ')
-                );
+                return this.bot.sendMessage(steamID, command === 'use'
+                    ? '⚠️ Please only use sku property.' +
+                    '\n\nBelow are some common items to use:\n • ' +
+                    [
+                        'Gift-Stuffed Stocking 2013: 5718;6;untradable',
+                        'Gift-Stuffed Stocking 2017: 5886;6;untradable',
+                        'Gift-Stuffed Stocking 2018: 5900;6;untradable',
+                        'Gift-Stuffed Stocking 2019: 5910;6;untradable',
+                        'Gift-Stuffed Stocking 2020: 5923;6;untradable'
+                    ].join('\n• ')
+                    : '⚠️ Please only use sku property.' +
+                    '\n\nBelow are some common items to delete:\n • ' +
+                    [
+                        'Smissmas Sweater: 16391;15;untradable;w1;pk391',
+                        'Soul Gargoyle: 5826;6;uncraftable;untradable',
+                        'Noise Maker - TF Birthday: 536;6;untradable',
+                        'Bronze Dueling Badge: 242;6;untradable',
+                        'Silver Dueling Badge: 243;6;untradable',
+                        'Gold Dueling Badge: 244;6;untradable',
+                        'Platinum Dueling Badge: 245;6;untradable',
+                        'Mercenary: 166;6;untradable',
+                        'Soldier of Fortune: 165;6;untradable',
+                        'Grizzled Veteran: 164;6;untradable',
+                        'Primeval Warrior: 170;6;untradable',
+                        'Professor Speks: 343;6;untradable',
+                        'Mann Co. Cap: 261;6;untradable',
+                        'Mann Co. Online Cap: 994;6;untradable',
+                        'Proof of Purchase: 471;6;untradable',
+                        'Mildly Disturbing Halloween Mask: 115;6;untradable',
+                        'Seal Mask: 582;6;untradable',
+                        'Pyrovision Goggles: 743;6;untradable',
+                        'Giftapult: 5083;6;untradable',
+                        'Spirit Of Giving: 655;11;untradable',
+                        'Party Hat: 537;6;untradable',
+                        'Name Tag: 5020;6;untradable',
+                        'Description Tag: 5044;6;untradable',
+                        'Ghastly Gibus: 584;6;untradable',
+                        'Ghastlier Gibus: 279;6;untradable',
+                        'Power Up Canteen: 489;6;untradable',
+                        'Bombinomicon: 583;6;untradable',
+                        'Skull Island Topper: 941;6;untradable',
+                        'Spellbook Page: 8935;6;untradable',
+                        'Gun Mettle Campaign Coin: 5809;6;untradable',
+                        'MONOCULUS!: 581;6;untradable'
+                    ].join('\n• '));
             }
 
             if (params.sku === undefined) {
-                return this.bot.sendMessage(
-                    steamID,
-                    `⚠️ Missing sku property. Example: "!${command} sku=5923;6;untradable"`
-                );
+                return this.bot.sendMessage(steamID, `⚠️ Missing sku property. Example: "!${command} sku=5923;6;untradable"`);
             }
 
             const targetedSKU = fixSKU(params.sku);
@@ -196,32 +184,23 @@ export default class ManagerCommands {
                 if (assetids.includes(targetedAssetId)) {
                     assetid = targetedAssetId;
                 } else {
-                    return this.bot.sendMessage(
-                        steamID,
-                        `❌ Looks like an assetid ${targetedAssetId} did not match any assetids associated with ${name}` +
-                            ` in my inventory. Try using the sku to use a random assetid.`
-                    );
+                    return this.bot.sendMessage(steamID, `❌ Looks like an assetid ${targetedAssetId} did not match any assetids associated with ${name}` +
+                        ` in my inventory. Try using the sku to use a random assetid.`);
                 }
             } else {
                 assetid = assetids[0];
             }
 
             if (params.i_am_sure !== 'yes_i_am') {
-                return this.bot.sendMessage(
-                    steamID,
-                    `/pre ⚠️ Are you sure that you want to ${command} ${name}?` +
-                        `\n- This process is irreversible and will ${command} the item from your bot's backpack!` +
-                        `\n- If you are sure, try again with i_am_sure=yes_i_am as a parameter`
-                );
+                return this.bot.sendMessage(steamID, `/pre ⚠️ Are you sure that you want to ${command} ${name}?` +
+                    `\n- This process is irreversible and will ${command} the item from your bot's backpack!` +
+                    `\n- If you are sure, try again with i_am_sure=yes_i_am as a parameter`);
             }
 
             this.bot.tf2gc[command === 'use' ? 'useItem' : 'deleteItem'](assetid, err => {
                 if (err) {
                     log.warn(`Error trying to ${command} ${name}: `, err);
-                    return this.bot.sendMessage(
-                        steamID,
-                        `❌ Failed to ${command} ${name} (${assetid}): ${err.message}`
-                    );
+                    return this.bot.sendMessage(steamID, `❌ Failed to ${command} ${name} (${assetid}): ${err.message}`);
                 }
 
                 this.bot.sendMessage(steamID, `✅ ${command === 'use' ? 'Used' : 'Deleted'} ${name} (${assetid})!`);
@@ -235,12 +214,9 @@ export default class ManagerCommands {
         const input = CommandParser.removeCommand(message);
 
         if (!input || input === `!${command}`) {
-            return this.bot.sendMessage(
-                steamID,
-                `❌ You forgot to add ${command === 'name' ? 'a name' : 'an image url'}. Example: "!${
-                    command === 'name' ? 'name IdiNium' : `avatar ${example}`
-                } "`
-            );
+            return this.bot.sendMessage(steamID, `❌ You forgot to add ${command === 'name' ? 'a name' : 'an image url'}. Example: "!${
+                command === 'name' ? 'name IdiNium' : `avatar ${example}`
+            } "`);
         }
 
         if (command === 'name') {
@@ -306,10 +282,7 @@ export default class ManagerCommands {
         const steamid = CommandParser.removeCommand(message);
 
         if (!steamid || steamid === `!${command}`) {
-            return this.bot.sendMessage(
-                steamID,
-                `❌ You forgot to add their SteamID64. Example: "!${command} 76561198798404909"`
-            );
+            return this.bot.sendMessage(steamID, `❌ You forgot to add their SteamID64. Example: "!${command} 76561198798404909"`);
         }
 
         const targetSteamID64 = new SteamID(steamid);
@@ -320,17 +293,11 @@ export default class ManagerCommands {
         this.bot.client[command === 'block' ? 'blockUser' : 'unblockUser'](targetSteamID64, err => {
             if (err) {
                 log.warn(`Failed to ${command} user ${targetSteamID64.getSteamID64()}: `, err);
-                return this.bot.sendMessage(
-                    steamID,
-                    `❌ Failed to ${command} user ${targetSteamID64.getSteamID64()}: ${err.message}`
-                );
+                return this.bot.sendMessage(steamID, `❌ Failed to ${command} user ${targetSteamID64.getSteamID64()}: ${err.message}`);
             }
-            this.bot.sendMessage(
-                steamID,
-                `✅ Successfully ${
-                    command === 'block' ? 'blocked' : 'unblocked'
-                } user ${targetSteamID64.getSteamID64()}`
-            );
+            this.bot.sendMessage(steamID, `✅ Successfully ${
+                command === 'block' ? 'blocked' : 'unblocked'
+            } user ${targetSteamID64.getSteamID64()}`);
         });
     }
 
@@ -359,32 +326,26 @@ export default class ManagerCommands {
         const aMin = 60 * 1000;
         const anHour = 60 * 60 * 1000;
 
-        this.bot.sendMessage(
-            steamID,
-            `⌛ Removing ${total} friends...` +
-                `\n2 seconds between each person, so it will be about ${
-                    totalTime < aMin
-                        ? `${Math.round(totalTime / aSecond)} seconds`
-                        : totalTime < anHour
-                        ? `${Math.round(totalTime / aMin)} minutes`
-                        : `${Math.round(totalTime / anHour)} hours`
-                } to complete.`
-        );
+        this.bot.sendMessage(steamID, `⌛ Removing ${total} friends...` +
+            `\n2 seconds between each person, so it will be about ${
+                totalTime < aMin
+                    ? `${Math.round(totalTime / aSecond)} seconds`
+                    : totalTime < anHour
+                    ? `${Math.round(totalTime / aMin)} minutes`
+                    : `${Math.round(totalTime / anHour)} hours`
+            } to complete.`);
 
         for (const steamid of friendsToRemove) {
             const getFriend = this.bot.friends.getFriend(steamid);
 
-            this.bot.sendMessage(
-                steamid,
-                this.bot.options.customMessage.clearFriends
-                    ? this.bot.options.customMessage.clearFriends.replace(
-                          /%name%/g,
-                          getFriend ? getFriend.player_name : steamid
-                      )
-                    : `/quote Hey ${
-                          getFriend ? getFriend.player_name : steamid
-                      }! My owner has performed friend list clearance. Please feel free to add me again if you want to trade at a later time!`
-            );
+            this.bot.sendMessage(steamid, this.bot.options.customMessage.clearFriends
+                ? this.bot.options.customMessage.clearFriends.replace(
+                    /%name%/g,
+                    getFriend ? getFriend.player_name : steamid
+                )
+                : `/quote Hey ${
+                    getFriend ? getFriend.player_name : steamid
+                }! My owner has performed friend list clearance. Please feel free to add me again if you want to trade at a later time!`);
 
             this.bot.client.removeFriend(steamid);
 
@@ -411,19 +372,13 @@ export default class ManagerCommands {
             .restartProcess()
             .then(restarting => {
                 if (!restarting) {
-                    this.bot.sendMessage(
-                        steamID,
-                        '❌ You are not running the bot with PM2! Get a VPS and run ' +
-                            'your bot with PM2: https://github.com/TF2Autobot/tf2autobot/wiki/Getting-a-VPS'
-                    );
+                    this.bot.sendMessage(steamID, '❌ You are not running the bot with PM2! Get a VPS and run ' +
+                        'your bot with PM2: https://github.com/TF2Autobot/tf2autobot/wiki/Getting-a-VPS');
                 }
             })
             .catch(err => {
                 log.warn('Error occurred while trying to restart: ', err);
-                this.bot.sendMessage(
-                    steamID,
-                    `❌ An error occurred while trying to restart: ${(err as Error).message}`
-                );
+                this.bot.sendMessage(steamID, `❌ An error occurred while trying to restart: ${(err as Error).message}`);
             });
     }
 
@@ -452,22 +407,16 @@ export default class ManagerCommands {
         const opt = this.bot.options;
 
         if (opt.miscSettings.createListings.enable === false) {
-            return this.bot.sendMessage(
-                steamID,
-                'miscSettings.crateListings.enable is set to false, thus this command is disabled'
-            );
+            return this.bot.sendMessage(steamID, 'miscSettings.crateListings.enable is set to false, thus this command is disabled');
         }
 
         const newExecutedTime = dayjs().valueOf();
         const timeDiff = newExecutedTime - this.lastExecutedRefreshListTime;
 
         if (this.executedRefreshList === true) {
-            return this.bot.sendMessage(
-                steamID,
-                `⚠️ You need to wait ${Math.trunc(
-                    ((this.pricelistCount > 4000 ? 60 : 30) * 60 * 1000 - timeDiff) / (1000 * 60)
-                )} minutes before you run refresh listings command again.`
-            );
+            return this.bot.sendMessage(steamID, `⚠️ You need to wait ${Math.trunc(
+                ((this.pricelistCount > 4000 ? 60 : 30) * 60 * 1000 - timeDiff) / (1000 * 60)
+            )} minutes before you run refresh listings command again.`);
         } else {
             const listingsSKUs: { [sku: string]: { intent: number[] } } = {};
             this.bot.listingManager.getListings(async err => {
@@ -476,10 +425,7 @@ export default class ManagerCommands {
 
                     const errStringify = JSON.stringify(err);
                     const errMessage = errStringify === '' ? (err as Error)?.message : errStringify;
-                    return this.bot.sendMessage(
-                        steamID,
-                        '❌ Unable to refresh listings, please try again later: ' + errMessage
-                    );
+                    return this.bot.sendMessage(steamID, '❌ Unable to refresh listings, please try again later: ' + errMessage);
                 }
 
                 const inventoryManager = this.bot.inventoryManager;
@@ -596,10 +542,7 @@ export default class ManagerCommands {
                             ` [${skusToCheck.join(', ')}] ...`
                     );
 
-                    this.bot.sendMessage(
-                        steamID,
-                        'Refreshing listings for ' + pluralize('item', pricelistCount, true) + '...'
-                    );
+                    this.bot.sendMessage(steamID, 'Refreshing listings for ' + pluralize('item', pricelistCount, true) + '...');
 
                     this.bot.handler.isRecentlyExecuteRefreshlistCommand = true;
                     this.bot.handler.setRefreshlistExecutedDelay = (this.pricelistCount > 4000 ? 60 : 30) * 60 * 1000;
@@ -733,12 +676,9 @@ export default class ManagerCommands {
         const timeDiff = newExecutedTime - this.lastExecutedRefreshSchemaTime;
 
         if (this.executedRefreshSchema === true) {
-            return this.bot.sendMessage(
-                steamID,
-                `⚠️ You need to wait ${Math.trunc(
-                    (30 * 60 * 1000 - timeDiff) / (1000 * 60)
-                )} minutes before you run update schema command again.`
-            );
+            return this.bot.sendMessage(steamID, `⚠️ You need to wait ${Math.trunc(
+                (30 * 60 * 1000 - timeDiff) / (1000 * 60)
+            )} minutes before you run update schema command again.`);
         } else {
             clearTimeout(this.executeRefreshSchemaTimeout);
             this.lastExecutedRefreshSchemaTime = dayjs().valueOf();

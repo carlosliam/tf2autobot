@@ -53,36 +53,33 @@ export default async function sendReview(
             }
             bot.sendMessage(offer.partner, reply);
         } else {
-            bot.sendMessage(
-                offer.partner,
-                `⚠️ Your offer is pending review.\nReasons: ${reasons}` +
-                    (opt.manualReview.showOfferSummary
-                        ? t
-                              .summarizeToChat(offer, bot, 'review-partner', false, content.value, keyPrices, true)
-                              .replace('Asked', '  My side')
-                              .replace('Offered', 'Your side') +
-                          (reasons.includes('🟥_INVALID_VALUE') && !reasons.includes('🟨_INVALID_ITEMS')
-                              ? content.missing
-                              : '') +
-                          (opt.manualReview.showReviewOfferNote
-                              ? `\n\nNote:\n${
-                                    content.notes.join('\n') +
-                                    (hasCustomNote ? '' : '\n\nPlease wait for a response from the owner.')
-                                }`
-                              : '')
+            bot.sendMessage(offer.partner, `⚠️ Your offer is pending review.\nReasons: ${reasons}` +
+                (opt.manualReview.showOfferSummary
+                    ? t
+                        .summarizeToChat(offer, bot, 'review-partner', false, content.value, keyPrices, true)
+                        .replace('Asked', '  My side')
+                        .replace('Offered', 'Your side') +
+                    (reasons.includes('🟥_INVALID_VALUE') && !reasons.includes('🟨_INVALID_ITEMS')
+                        ? content.missing
                         : '') +
-                    (opt.manualReview.additionalNotes
-                        ? '\n\n' +
-                          opt.manualReview.additionalNotes
-                              .replace(/%keyRate%/g, `${keyPrices.buy.toString()}/${keyPrices.sell.toString()}`)
-                              .replace(/%pureStock%/g, t.pure.stock(bot).join(', ').toString())
-                        : '') +
-                    (opt.manualReview.showOwnerCurrentTime
-                        ? `\n\nIt is currently the following time in my owner's timezone: ${time.emoji} ${
-                              time.time + (time.note !== '' ? `. ${time.note}.` : '.')
-                          }`
+                    (opt.manualReview.showReviewOfferNote
+                        ? `\n\nNote:\n${
+                            content.notes.join('\n') +
+                            (hasCustomNote ? '' : '\n\nPlease wait for a response from the owner.')
+                        }`
                         : '')
-            );
+                    : '') +
+                (opt.manualReview.additionalNotes
+                    ? '\n\n' +
+                    opt.manualReview.additionalNotes
+                        .replace(/%keyRate%/g, `${keyPrices.buy.toString()}/${keyPrices.sell.toString()}`)
+                        .replace(/%pureStock%/g, t.pure.stock(bot).join(', ').toString())
+                    : '') +
+                (opt.manualReview.showOwnerCurrentTime
+                    ? `\n\nIt is currently the following time in my owner's timezone: ${time.emoji} ${
+                        time.time + (time.note !== '' ? `. ${time.note}.` : '.')
+                    }`
+                    : ''));
         }
     }
 

@@ -80,14 +80,11 @@ export default class CartQueue {
                 } else {
                     const errStringify = JSON.stringify(err);
                     const errMessage = errStringify === '' ? (err as Error)?.message : errStringify;
-                    return this.bot.messageAdmins(
-                        `❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
-                            'time',
-                            position,
-                            true
-                        )} because backpack.tf is currently down: ${errMessage}`,
-                        []
-                    );
+                    return this.bot.messageAdmins(`❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
+                        'time',
+                        position,
+                        true
+                    )} because backpack.tf is currently down: ${errMessage}`, []);
                 }
             }
 
@@ -108,14 +105,11 @@ export default class CartQueue {
                 if (dwEnabled) {
                     return sendAlert('queue-problem-not-restart-steam-maintenance', this.bot, null, position);
                 } else {
-                    return this.bot.messageAdmins(
-                        `❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
-                            'time',
-                            position,
-                            true
-                        )} because Steam is currently down.`,
-                        []
-                    );
+                    return this.bot.messageAdmins(`❌ Unable to perform automatic restart due to Escrow check problem, which has failed for ${pluralize(
+                        'time',
+                        position,
+                        true
+                    )} because Steam is currently down.`, []);
                 }
             } else {
                 // Good to perform automatic restart
@@ -142,20 +136,14 @@ export default class CartQueue {
                         .restartProcess()
                         .then(restarting => {
                             if (!restarting) {
-                                return this.bot.messageAdmins(
-                                    '❌ Automatic restart on queue problem failed because are not running the bot with PM2!',
-                                    []
-                                );
+                                return this.bot.messageAdmins('❌ Automatic restart on queue problem failed because are not running the bot with PM2!', []);
                             }
                             this.bot.messageAdmins(`🔄 Restarting...`, []);
                             this.bot.sendMessage(steamID, 'Queue problem detected, restarting...');
                         })
                         .catch(err => {
                             log.error('Error occurred while trying to restart: ', err);
-                            this.bot.messageAdmins(
-                                `❌ An error occurred while trying to restart: ${(err as Error).message}`,
-                                []
-                            );
+                            this.bot.messageAdmins(`❌ An error occurred while trying to restart: ${(err as Error).message}`, []);
                             // try again after 3 minutes
                             clearTimeout(this.queuePositionCheck);
                             this.queueCheck(steamID);

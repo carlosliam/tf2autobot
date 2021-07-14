@@ -38,52 +38,49 @@ export default class StatusCommands {
             ? ` (${Currencies.toRefined(profits.overpriceProfit)} ref)`
             : '';
 
-        this.bot.sendMessage(
-            steamID,
-            `All trades (accepted) are recorded from ${pluralize('day', trades.totalDays, true)}` +
-                ' ago 📊\n Total accepted trades: ' +
-                (tradesFromEnv !== 0
-                    ? String(tradesFromEnv + trades.totalAcceptedTrades)
-                    : String(trades.totalAcceptedTrades)) +
-                `\n\n--- Last 24 hours ---` +
-                `\n• Processed: ${trades.hours24.processed}` +
-                `\n• Accepted: ${trades.hours24.accepted.offer.total + trades.hours24.accepted.sent}` +
-                `\n---• Received offer: ${trades.hours24.accepted.offer.total}` +
-                `\n------• Countered: ${trades.hours24.accepted.offer.countered}` +
-                `\n---• Sent offer: ${trades.hours24.accepted.sent}` +
-                `\n• Declined: ${trades.hours24.decline.offer.total + trades.hours24.decline.sent}` +
-                `\n---• Received offer: ${trades.hours24.decline.offer.total}` +
-                `\n------• Countered: ${trades.hours24.decline.offer.countered}` +
-                `\n---• Sent offer: ${trades.hours24.decline.sent}` +
-                `\n• Skipped: ${trades.hours24.skipped}` +
-                `\n• Traded away: ${trades.hours24.invalid}` +
-                `\n• Canceled: ${trades.hours24.canceled.total}` +
-                `\n---• by user: ${trades.hours24.canceled.byUser}` +
-                `\n---• confirmation failed: ${trades.hours24.canceled.failedConfirmation}` +
-                `\n---• unknown reason: ${trades.hours24.canceled.unknown}` +
-                `\n\n--- Since beginning of today ---` +
-                `\n• Processed: ${trades.today.processed}` +
-                `\n• Accepted: ${trades.today.accepted.offer.total + trades.today.accepted.sent}` +
-                `\n---• Received offer: ${trades.today.accepted.offer.total}` +
-                `\n------• Countered: ${trades.today.accepted.offer.countered}` +
-                `\n---• Sent offer: ${trades.today.accepted.sent}` +
-                `\n• Declined: ${trades.today.decline.offer.total + trades.today.decline.sent}` +
-                `\n---• Received offer: ${trades.today.decline.offer.total}` +
-                `\n------• Countered: ${trades.today.decline.offer.countered}` +
-                `\n---• Sent offer: ${trades.today.decline.sent}` +
-                `\n• Skipped: ${trades.today.skipped}` +
-                `\n• Traded away: ${trades.today.invalid}` +
-                `\n• Canceled: ${trades.today.canceled.total}` +
-                `\n---• by user: ${trades.today.canceled.byUser}` +
-                `\n---• confirmation failed: ${trades.today.canceled.failedConfirmation}` +
-                `\n---• unknown reason: ${trades.today.canceled.unknown}` +
-                `\n\n Profit (last 24h): ${timedProfitmadeFull + timedProfitmadeInRef}` +
-                `\nProfit made: ${profitmadeFull + profitmadeInRef} ${
-                    profits.since !== 0 ? ` (since ${pluralize('day', profits.since, true)} ago)` : ''
-                }` +
-                `\nProfit from overpay: ${profitOverpayFull + profitOverpayInRef}` +
-                `\nKey rate: ${keyPrices.buy.metal}/${keyPrices.sell.metal} ref`
-        );
+        this.bot.sendMessage(steamID, `All trades (accepted) are recorded from ${pluralize('day', trades.totalDays, true)}` +
+            ' ago 📊\n Total accepted trades: ' +
+            (tradesFromEnv !== 0
+                ? String(tradesFromEnv + trades.totalAcceptedTrades)
+                : String(trades.totalAcceptedTrades)) +
+            `\n\n--- Last 24 hours ---` +
+            `\n• Processed: ${trades.hours24.processed}` +
+            `\n• Accepted: ${trades.hours24.accepted.offer.total + trades.hours24.accepted.sent}` +
+            `\n---• Received offer: ${trades.hours24.accepted.offer.total}` +
+            `\n------• Countered: ${trades.hours24.accepted.offer.countered}` +
+            `\n---• Sent offer: ${trades.hours24.accepted.sent}` +
+            `\n• Declined: ${trades.hours24.decline.offer.total + trades.hours24.decline.sent}` +
+            `\n---• Received offer: ${trades.hours24.decline.offer.total}` +
+            `\n------• Countered: ${trades.hours24.decline.offer.countered}` +
+            `\n---• Sent offer: ${trades.hours24.decline.sent}` +
+            `\n• Skipped: ${trades.hours24.skipped}` +
+            `\n• Traded away: ${trades.hours24.invalid}` +
+            `\n• Canceled: ${trades.hours24.canceled.total}` +
+            `\n---• by user: ${trades.hours24.canceled.byUser}` +
+            `\n---• confirmation failed: ${trades.hours24.canceled.failedConfirmation}` +
+            `\n---• unknown reason: ${trades.hours24.canceled.unknown}` +
+            `\n\n--- Since beginning of today ---` +
+            `\n• Processed: ${trades.today.processed}` +
+            `\n• Accepted: ${trades.today.accepted.offer.total + trades.today.accepted.sent}` +
+            `\n---• Received offer: ${trades.today.accepted.offer.total}` +
+            `\n------• Countered: ${trades.today.accepted.offer.countered}` +
+            `\n---• Sent offer: ${trades.today.accepted.sent}` +
+            `\n• Declined: ${trades.today.decline.offer.total + trades.today.decline.sent}` +
+            `\n---• Received offer: ${trades.today.decline.offer.total}` +
+            `\n------• Countered: ${trades.today.decline.offer.countered}` +
+            `\n---• Sent offer: ${trades.today.decline.sent}` +
+            `\n• Skipped: ${trades.today.skipped}` +
+            `\n• Traded away: ${trades.today.invalid}` +
+            `\n• Canceled: ${trades.today.canceled.total}` +
+            `\n---• by user: ${trades.today.canceled.byUser}` +
+            `\n---• confirmation failed: ${trades.today.canceled.failedConfirmation}` +
+            `\n---• unknown reason: ${trades.today.canceled.unknown}` +
+            `\n\n Profit (last 24h): ${timedProfitmadeFull + timedProfitmadeInRef}` +
+            `\nProfit made: ${profitmadeFull + profitmadeInRef} ${
+                profits.since !== 0 ? ` (since ${pluralize('day', profits.since, true)} ago)` : ''
+            }` +
+            `\nProfit from overpay: ${profitOverpayFull + profitOverpayInRef}` +
+            `\nKey rate: ${keyPrices.buy.metal}/${keyPrices.sell.metal} ref`);
     }
 
     statsDWCommand(steamID: SteamID): void {
@@ -101,12 +98,9 @@ export default class StatusCommands {
     }
 
     inventoryCommand(steamID: SteamID): void {
-        this.bot.sendMessage(
-            steamID,
-            `🎒 My current items in my inventory: ${
-                String(this.bot.inventoryManager.getInventory.getTotalItems) + '/' + String(this.bot.tf2.backpackSlots)
-            }`
-        );
+        this.bot.sendMessage(steamID, `🎒 My current items in my inventory: ${
+            String(this.bot.inventoryManager.getInventory.getTotalItems) + '/' + String(this.bot.tf2.backpackSlots)
+        }`);
     }
 
     async itemStatsCommand(steamID: SteamID, message: string): Promise<void> {
@@ -118,10 +112,7 @@ export default class StatusCommands {
             sku = this.bot.schema.getSkuFromName(message);
 
             if (sku.includes('null') || sku.includes('undefined')) {
-                return this.bot.sendMessage(
-                    steamID,
-                    `Invalid item name. The sku generate was ${sku}. Please report this to us on our Discord server, or create an issue on Github.`
-                );
+                return this.bot.sendMessage(steamID, `Invalid item name. The sku generate was ${sku}. Please report this to us on our Discord server, or create an issue on Github.`);
             }
         }
 
@@ -364,21 +355,15 @@ export default class StatusCommands {
     }
 
     versionCommand(steamID: SteamID): void {
-        this.bot.sendMessage(
-            steamID,
-            `Currently running TF2Autobot@v${process.env.BOT_VERSION}. Checking for a new version...`
-        );
+        this.bot.sendMessage(steamID, `Currently running TF2Autobot@v${process.env.BOT_VERSION}. Checking for a new version...`);
 
         this.bot.checkForUpdates
             .then(({ hasNewVersion, latestVersion }) => {
                 if (!hasNewVersion) {
                     this.bot.sendMessage(steamID, 'You are running the latest version of TF2Autobot!');
                 } else if (this.bot.lastNotifiedVersion === latestVersion) {
-                    this.bot.sendMessage(
-                        steamID,
-                        `⚠️ Update available! Current: v${process.env.BOT_VERSION}, Latest: v${latestVersion}.\n\n` +
-                            `Release note: https://github.com/TF2Autobot/tf2autobot/releases`
-                    );
+                    this.bot.sendMessage(steamID, `⚠️ Update available! Current: v${process.env.BOT_VERSION}, Latest: v${latestVersion}.\n\n` +
+                        `Release note: https://github.com/TF2Autobot/tf2autobot/releases`);
                 }
             })
             .catch(err => {

@@ -51,14 +51,11 @@ export default class ReviewCommands {
             return this.bot.sendMessage(steamID, '❌ There are no active offers/ pending review.');
         }
 
-        this.bot.sendMessage(
-            steamID,
-            (offersForReview.length > 0 ? this.generateTradesReply(offersForReview.sort((a, b) => a.id - b.id)) : '') +
-                (offersForReview.length > 0 ? '\n\n-----------------\n\n' : '') +
-                (activeOffersNotForReview.length > 0
-                    ? this.generateActiveOfferReply(activeOffersNotForReview.sort((a, b) => a.id - b.id))
-                    : '')
-        );
+        this.bot.sendMessage(steamID, (offersForReview.length > 0 ? this.generateTradesReply(offersForReview.sort((a, b) => a.id - b.id)) : '') +
+            (offersForReview.length > 0 ? '\n\n-----------------\n\n' : '') +
+            (activeOffersNotForReview.length > 0
+                ? this.generateActiveOfferReply(activeOffersNotForReview.sort((a, b) => a.id - b.id))
+                : ''));
     }
 
     private generateTradesReply(offers: UnknownDictionaryKnownValues[]): string {
@@ -200,10 +197,7 @@ export default class ReviewCommands {
         const isAccepting = ['accept', 'accepttrade'].includes(command);
 
         if (isNaN(+offerIdRegex) || !offerIdRegex) {
-            return this.bot.sendMessage(
-                steamID,
-                `⚠️ Missing offer id. Example: "!${isAccepting ? 'accept' : 'decline'} 3957959294"`
-            );
+            return this.bot.sendMessage(steamID, `⚠️ Missing offer id. Example: "!${isAccepting ? 'accept' : 'decline'} 3957959294"`);
         }
 
         const offerId = offerIdRegex[0];
@@ -219,7 +213,7 @@ export default class ReviewCommands {
 
         const offerData = this.bot.manager.pollData.offerData[offerId];
         if (offerData?.action?.action !== 'skip') {
-            return this.bot.sendMessage(steamID, "Offer can't be reviewed. ❌");
+            return this.bot.sendMessage(steamID, 'Offer can\'t be reviewed. ❌');
         }
 
         try {
@@ -242,23 +236,17 @@ export default class ReviewCommands {
                     const isManyItems = offer.itemsToGive.length + offer.itemsToReceive.length > 50;
 
                     if (isManyItems) {
-                        this.bot.sendMessage(
-                            offer.partner,
-                            this.bot.options.customMessage.accepted.manual.largeOffer
-                                ? this.bot.options.customMessage.accepted.manual.largeOffer
-                                : '.\nMy owner has manually accepted your offer. The trade may take a while to finalize due to it being a large offer.' +
-                                      ' If the trade does not finalize after 5-10 minutes has passed, please send your offer again, or add me and use ' +
-                                      'the !sell/!sellcart or !buy/!buycart command.'
-                        );
+                        this.bot.sendMessage(offer.partner, this.bot.options.customMessage.accepted.manual.largeOffer
+                            ? this.bot.options.customMessage.accepted.manual.largeOffer
+                            : '.\nMy owner has manually accepted your offer. The trade may take a while to finalize due to it being a large offer.' +
+                            ' If the trade does not finalize after 5-10 minutes has passed, please send your offer again, or add me and use ' +
+                            'the !sell/!sellcart or !buy/!buycart command.');
                     } else {
-                        this.bot.sendMessage(
-                            offer.partner,
-                            this.bot.options.customMessage.accepted.manual.smallOffer
-                                ? this.bot.options.customMessage.accepted.manual.smallOffer
-                                : '.\nMy owner has manually accepted your offer. The trade should be finalized shortly.' +
-                                      ' If the trade does not finalize after 1-2 minutes has passed, please send your offer again, or add me and use ' +
-                                      'the !sell/!sellcart or !buy/!buycart command.'
-                        );
+                        this.bot.sendMessage(offer.partner, this.bot.options.customMessage.accepted.manual.smallOffer
+                            ? this.bot.options.customMessage.accepted.manual.smallOffer
+                            : '.\nMy owner has manually accepted your offer. The trade should be finalized shortly.' +
+                            ' If the trade does not finalize after 1-2 minutes has passed, please send your offer again, or add me and use ' +
+                            'the !sell/!sellcart or !buy/!buycart command.');
                     }
                 }
 
@@ -266,28 +254,19 @@ export default class ReviewCommands {
                 if (reply) {
                     const isShowOwner = this.bot.options.commands.message.showOwnerName;
 
-                    this.bot.sendMessage(
-                        partnerId,
-                        `/quote 💬 Message from ${
-                            isShowOwner && adminDetails ? adminDetails.player_name : 'the owner'
-                        }: ${reply}`
-                    );
+                    this.bot.sendMessage(partnerId, `/quote 💬 Message from ${
+                        isShowOwner && adminDetails ? adminDetails.player_name : 'the owner'
+                    }: ${reply}`);
                 }
             } catch (err) {
-                return this.bot.sendMessage(
-                    steamID,
-                    `❌ Ohh nooooes! Something went wrong while trying to ${
-                        isAccepting ? 'accept' : 'decline'
-                    } the offer: ${(err as Error).message}`
-                );
+                return this.bot.sendMessage(steamID, `❌ Ohh nooooes! Something went wrong while trying to ${
+                    isAccepting ? 'accept' : 'decline'
+                } the offer: ${(err as Error).message}`);
             }
         } catch (err) {
-            return this.bot.sendMessage(
-                steamID,
-                `❌ Ohh nooooes! Something went wrong while trying to ${
-                    isAccepting ? 'accept' : 'decline'
-                } the offer: ${(err as Error).message}`
-            );
+            return this.bot.sendMessage(steamID, `❌ Ohh nooooes! Something went wrong while trying to ${
+                isAccepting ? 'accept' : 'decline'
+            } the offer: ${(err as Error).message}`);
         }
     }
 
@@ -298,10 +277,7 @@ export default class ReviewCommands {
         const isForceAccepting = command === 'faccept';
 
         if (isNaN(+offerIdRegex) || !offerIdRegex) {
-            return this.bot.sendMessage(
-                steamID,
-                `⚠️ Missing offer id. Example: "!${isForceAccepting ? 'faccept' : 'fdecline'} 3957959294"`
-            );
+            return this.bot.sendMessage(steamID, `⚠️ Missing offer id. Example: "!${isForceAccepting ? 'faccept' : 'fdecline'} 3957959294"`);
         }
 
         const offerId = offerIdRegex[0];
@@ -331,28 +307,19 @@ export default class ReviewCommands {
                 if (reply) {
                     const isShowOwner = this.bot.options.commands.message.showOwnerName;
 
-                    this.bot.sendMessage(
-                        partnerId,
-                        `/quote 💬 Message from ${
-                            isShowOwner && adminDetails ? adminDetails.player_name : 'the owner'
-                        }: ${reply}`
-                    );
+                    this.bot.sendMessage(partnerId, `/quote 💬 Message from ${
+                        isShowOwner && adminDetails ? adminDetails.player_name : 'the owner'
+                    }: ${reply}`);
                 }
             } catch (err) {
-                return this.bot.sendMessage(
-                    steamID,
-                    `❌ Ohh nooooes! Something went wrong while trying to force ${
-                        isForceAccepting ? 'accept' : 'decline'
-                    } the offer: ${(err as Error).message}`
-                );
+                return this.bot.sendMessage(steamID, `❌ Ohh nooooes! Something went wrong while trying to force ${
+                    isForceAccepting ? 'accept' : 'decline'
+                } the offer: ${(err as Error).message}`);
             }
         } catch (err) {
-            return this.bot.sendMessage(
-                steamID,
-                `❌ Ohh nooooes! Something went wrong while trying to force ${
-                    isForceAccepting ? 'accept' : 'decline'
-                } the offer: ${(err as Error).message}`
-            );
+            return this.bot.sendMessage(steamID, `❌ Ohh nooooes! Something went wrong while trying to force ${
+                isForceAccepting ? 'accept' : 'decline'
+            } the offer: ${(err as Error).message}`);
         }
     }
 

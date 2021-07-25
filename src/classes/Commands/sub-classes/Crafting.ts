@@ -22,7 +22,7 @@ export default class CraftingCommands {
         this.bot = bot;
     }
 
-    craftTokenCommand(steamID: SteamID, message: string): void {
+    craftTokenCommand(steamID: SteamID, message: string): Promise<void> {
         const opt = this.bot.options.crafting;
         if (opt.manual === false) {
             return this.bot.sendMessage(
@@ -167,7 +167,7 @@ export default class CraftingCommands {
         }
     }
 
-    private getCraftTokenInfo(steamID: SteamID): void {
+    private getCraftTokenInfo(steamID: SteamID): Promise<void> {
         this.defineCraftWeaponsBySlots();
 
         const reply: string[] = [];
@@ -294,7 +294,7 @@ export default class CraftingCommands {
             );
         }
 
-        this.bot.sendMessage(steamID, '🔨 Crafting token info:\n\n- ' + reply.join('\n- '));
+        return this.bot.sendMessage(steamID, '🔨 Crafting token info:\n\n- ' + reply.join('\n- '));
     }
 
     private defineCraftWeaponsBySlots(): void {

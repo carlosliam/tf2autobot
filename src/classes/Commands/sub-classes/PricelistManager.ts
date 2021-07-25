@@ -275,7 +275,7 @@ export default class PricelistManagerCommands {
         }
     }
 
-    autoAddCommand(steamID: SteamID, message: string): void {
+    async autoAddCommand(steamID: SteamID, message: string): Promise<void> {
         if (AutoAddQueue.isRunning()) {
             return this.bot.sendMessage(steamID, `❌ Autoadd is still running. Please wait until it's completed or send !stopautoadd to stop.`);
         }
@@ -288,7 +288,7 @@ export default class PricelistManagerCommands {
         }
 
         if (!params) {
-            this.bot.sendMessage(steamID, `⏳ Adding all items with default settings...`);
+            await this.bot.sendMessage(steamID, `⏳ Adding all items with default settings...`);
         }
 
         const isPremium = this.bot.handler.getBotInfo.premium;
@@ -329,7 +329,7 @@ export default class PricelistManagerCommands {
         const aMin = 60 * 1000;
         const anHour = 60 * 60 * 1000;
 
-        this.bot.sendMessage(steamID, `⏳ Running automatic add items... Total items to add: ${total}` +
+        await this.bot.sendMessage(steamID, `⏳ Running automatic add items... Total items to add: ${total}` +
             `\n${params.autoprice ? 2 : 1} seconds in between items, so it will be about ${
                 totalTime < aMin
                     ? `${Math.round(totalTime / aSecond)} seconds`
@@ -342,7 +342,7 @@ export default class PricelistManagerCommands {
         AutoAddQueue.addJob();
 
         autoAdd.enqueue = skus;
-        void autoAdd.executeAutoAdd();
+        await autoAdd.executeAutoAdd();
     }
 
     async updateCommand(steamID: SteamID, message: string): Promise<void> {
@@ -1262,7 +1262,7 @@ export default class PricelistManagerCommands {
             });
     }
 
-    removebulkCommand(steamID: SteamID, message: string): void {
+    async removebulkCommand(steamID: SteamID, message: string): Promise<void> {
         if (PricelistManagerCommands.isBulkOperation) {
             return this.bot.sendMessage(steamID, `❌ Bulk operation is still in progress. Please wait until it's completed.`);
         }
@@ -1399,14 +1399,14 @@ export default class PricelistManagerCommands {
         }
     }
 
-    getSlotsCommand(steamID: SteamID): void {
+    getSlotsCommand(steamID: SteamID): Promise<void> {
         const listingsCap = this.bot.listingManager.cap;
         const currentUsedSlots = this.bot.listingManager.listings.length;
 
         return this.bot.sendMessage(steamID, `🏷️ Current listings slots: ${currentUsedSlots}/${listingsCap}`);
     }
 
-    getCommand(steamID: SteamID, message: string): void {
+    getCommand(steamID: SteamID, message: string): Promise<void> {
         const params = CommandParser.parseParams(CommandParser.removeCommand(removeLinkProtocol(message)));
         if (params.sku !== undefined && !testSKU(params.sku as string)) {
             return this.bot.sendMessage(steamID, `❌ "sku" should not be empty or wrong format.`);

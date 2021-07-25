@@ -193,9 +193,9 @@ export default class Bot {
         return this.trades.checkEscrow(offer);
     }
 
-    messageAdmins(message: string, exclude: string[] | SteamID[]): void;
+    async messageAdmins(message: string, exclude: string[] | SteamID[]): Promise<void>;
 
-    messageAdmins(type: string, message: string, exclude: string[] | SteamID[]): void;
+    async messageAdmins(type: string, message: string, exclude: string[] | SteamID[]): Promise<void>;
 
     async messageAdmins(
         ...args: [string, string[] | SteamID[]] | [string, string, string[] | SteamID[]]

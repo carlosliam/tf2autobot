@@ -83,7 +83,7 @@ export default class StatusCommands {
             `\nKey rate: ${keyPrices.buy.metal}/${keyPrices.sell.metal} ref`);
     }
 
-    statsDWCommand(steamID: SteamID): void {
+    async statsDWCommand(steamID: SteamID): Promise<void> {
         const opt = this.bot.options.discordWebhook.sendStats;
 
         if (!opt.enable) {
@@ -94,7 +94,7 @@ export default class StatusCommands {
             return this.bot.sendMessage(steamID, '❌ Your discordWebhook.sendStats.url is empty.');
         }
 
-        void sendStats(this.bot, true, steamID);
+        await sendStats(this.bot, true, steamID);
     }
 
     inventoryCommand(steamID: SteamID): void {

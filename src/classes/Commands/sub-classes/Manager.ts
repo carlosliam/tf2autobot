@@ -37,7 +37,7 @@ export default class ManagerCommands {
         this.bot = bot;
     }
 
-    TF2GCCommand(steamID: SteamID, message: string, command: TF2GC): void {
+    TF2GCCommand(steamID: SteamID, message: string, command: TF2GC): Promise<void> {
         const params = CommandParser.parseParams(CommandParser.removeCommand(message));
 
         if (command === 'expand') {
@@ -85,7 +85,7 @@ export default class ManagerCommands {
                         `\n- If you are sure, try again with i_am_sure=yes_i_am as a parameter`);
                 }
 
-                return this.bot.tf2gc[command === 'use' ? 'useItem' : 'deleteItem'](targetedAssetId, err => {
+                return new Promise(resolve => this.bot.tf2gc[command === 'use' ? 'useItem' : 'deleteItem'](targetedAssetId, err => {
                     const theItem =
                         sku === null
                             ? targetedAssetId
@@ -93,11 +93,11 @@ export default class ManagerCommands {
 
                     if (err) {
                         log.warn(`Error trying to ${command} ${theItem}: `, err);
-                        return this.bot.sendMessage(steamID, `❌ Failed to ${command} ${theItem}: ${err.message}`);
+                        resolve(this.bot.sendMessage(steamID, `❌ Failed to ${command} ${theItem}: ${err.message}`));
                     }
 
-                    this.bot.sendMessage(steamID, `✅ ${command === 'use' ? 'Used' : 'Deleted'} ${theItem}!`);
-                });
+                    resolve(this.bot.sendMessage(steamID, `✅ ${command === 'use' ? 'Used' : 'Deleted'} ${theItem}!`));
+                }));
             }
 
             if (params.name !== undefined || params.item !== undefined) {
@@ -208,7 +208,7 @@ export default class ManagerCommands {
         }
     }
 
-    nameAvatarCommand(steamID: SteamID, message: string, command: NameAvatar): void {
+    nameAvatarCommand(steamID: SteamID, message: string, command: NameAvatar): Promise<void> {
         const example =
             'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/f5/f57685d33224e32436f366d1acb4a1769bdfa60f_full.jpg';
         const input = CommandParser.removeCommand(message);
@@ -278,7 +278,7 @@ export default class ManagerCommands {
         });
     }
 
-    blockUnblockCommand(steamID: SteamID, message: string, command: BlockUnblock): void {
+    blockUnblockCommand(steamID: SteamID, message: string, command: BlockUnblock): Promise<void> {
         const steamid = CommandParser.removeCommand(message);
 
         if (!steamid || steamid === `!${command}`) {
@@ -382,7 +382,7 @@ export default class ManagerCommands {
             });
     }
 
-    autokeysCommand(steamID: SteamID): void {
+    autokeysCommand(steamID: SteamID): Promise<void> {
         const opt = this.bot.options.commands.autokeys;
         if (!opt.enable) {
             if (!this.bot.isAdmin(steamID)) {
@@ -394,7 +394,7 @@ export default class ManagerCommands {
         this.bot.sendMessage(steamID, '/pre ' + this.generateAutokeysReply(steamID, this.bot));
     }
 
-    refreshAutokeysCommand(steamID: SteamID): void {
+    refreshAutokeysCommand(steamID: SteamID): Promise<void> {
         if (this.bot.handler.autokeys.isEnabled === false) {
             return this.bot.sendMessage(steamID, `This feature is disabled.`);
         }
@@ -403,7 +403,7 @@ export default class ManagerCommands {
         this.bot.sendMessage(steamID, '✅ Successfully refreshed Autokeys.');
     }
 
-    refreshListingsCommand(steamID: SteamID): void {
+    refreshListingsCommand(steamID: SteamID): Promise<void> {
         const opt = this.bot.options;
 
         if (opt.miscSettings.createListings.enable === false) {
@@ -671,7 +671,7 @@ export default class ManagerCommands {
         return reply;
     }
 
-    refreshSchema(steamID: SteamID): void {
+    refreshSchema(steamID: SteamID): Promise<void> {
         const newExecutedTime = dayjs().valueOf();
         const timeDiff = newExecutedTime - this.lastExecutedRefreshSchemaTime;
 

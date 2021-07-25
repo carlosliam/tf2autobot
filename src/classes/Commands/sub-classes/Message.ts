@@ -10,18 +10,17 @@ export default class MessageCommand {
         this.bot = bot;
     }
 
-    message(steamID: SteamID, message: string): void {
+    async message(steamID: SteamID, message: string): Promise<void> {
         const isAdmin = this.bot.isAdmin(steamID);
         const optComm = this.bot.options.commands.message;
         const custom = optComm.customReply;
 
         if (!optComm.enable) {
             if (isAdmin) {
-                this.bot.sendMessage(steamID, '❌ The message command is disabled. Enable it by sending `!config commands.message.enable=true`.');
+                return this.bot.sendMessage(steamID, '❌ The message command is disabled. Enable it by sending `!config commands.message.enable=true`.');
             } else {
-                this.bot.sendMessage(steamID, custom.disabled ? custom.disabled : '❌ The owner has disabled messages.');
+                return this.bot.sendMessage(steamID, custom.disabled ? custom.disabled : '❌ The owner has disabled messages.');
             }
-            return;
         }
 
         const senderDetails = this.bot.friends.getFriend(steamID);
@@ -61,7 +60,7 @@ export default class MessageCommand {
             const isShowOwner = optComm.showOwnerName;
 
             // Send message to recipient
-            this.bot.sendMessage(recipientSteamID, custom.fromOwner
+            await this.bot.sendMessage(recipientSteamID, custom.fromOwner
                 ? custom.fromOwner.replace(/%reply%/g, reply)
                 : `/quote 💬 Message from ${
                     isShowOwner && adminDetails ? adminDetails.player_name : 'the owner'
@@ -81,14 +80,14 @@ export default class MessageCommand {
                 );
             } else {
                 const customInitializer = this.bot.options.steamChat.customInitializer.message.toOtherAdmins;
-                this.bot.messageAdmins(`${
+                await this.bot.messageAdmins(`${
                     customInitializer ? customInitializer : '/quote'
                 } 💬 Message sent to #${recipientSteamID.toString()}${
                     recipientDetails ? ` (${recipientDetails.player_name})` : ''
                 }: "${reply}". `, []);
             }
 
-            this.bot.sendMessage(steamID, custom.success ? custom.success : '✅ Your message has been sent.');
+            await this.bot.sendMessage(steamID, custom.success ? custom.success : '✅ Your message has been sent.');
 
             // Send message to all other admins that an admin replied
             return this.bot.messageAdmins(`${
@@ -124,7 +123,7 @@ export default class MessageCommand {
                 );
             } else {
                 const customInitializer = this.bot.options.steamChat.customInitializer.message.onReceive;
-                this.bot.messageAdmins(`${
+                await this.bot.messageAdmins(`${
                         customInitializer ? customInitializer : '/quote'
                     } 💬 You've got a message from #${steamID.toString()}${
                         senderDetails ? ` (${senderDetails.player_name})` : ''
@@ -135,7 +134,7 @@ export default class MessageCommand {
                     `\nSteamREP: ${links.steamrep}`, []);
             }
 
-            this.bot.sendMessage(steamID, custom.success ? custom.success : '✅ Your message has been sent.');
+           return this.bot.sendMessage(steamID, custom.success ? custom.success : '✅ Your message has been sent.');
         }
     }
 }

@@ -121,7 +121,7 @@ export default class RequestCommands {
         }
     }
 
-    pricecheckCommand(steamID: SteamID, message: string): void {
+    pricecheckCommand(steamID: SteamID, message: string): Promise<void> {
         const params = CommandParser.parseParams(CommandParser.removeCommand(removeLinkProtocol(message)));
         if (params.sku !== undefined && !testSKU(params.sku as string)) {
             return this.bot.sendMessage(steamID, `❌ "sku" should not be empty or wrong format.`);
@@ -161,7 +161,7 @@ export default class RequestCommands {
         });
     }
 
-    pricecheckAllCommand(steamID: SteamID): void {
+    pricecheckAllCommand(steamID: SteamID): Promise<void> {
         if (Pricecheck.isRunning()) {
             return this.bot.sendMessage(steamID, "❌ Pricecheck is still running. Please wait until it's completed.");
         }

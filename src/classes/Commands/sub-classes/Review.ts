@@ -19,7 +19,7 @@ export default class ReviewCommands {
         this.bot = bot;
     }
 
-    tradesCommand(steamID: SteamID): void {
+    tradesCommand(steamID: SteamID): Promise<void> {
         // Go through polldata and find active offers
         const pollData = this.bot.manager.pollData;
 
@@ -99,7 +99,7 @@ export default class ReviewCommands {
         return reply;
     }
 
-    tradeCommand(steamID: SteamID, message: string): void {
+    tradeCommand(steamID: SteamID, message: string): Promise<void> {
         const offerId = CommandParser.removeCommand(message).trim();
 
         if (offerId === '') {
@@ -323,7 +323,7 @@ export default class ReviewCommands {
         }
     }
 
-    offerInfo(steamID: SteamID, message: string): void {
+    offerInfo(steamID: SteamID, message: string): Promise<void> {
         const offerIdAndMessage = CommandParser.removeCommand(message);
         const offerIdRegex = /\d+/.exec(offerIdAndMessage);
 

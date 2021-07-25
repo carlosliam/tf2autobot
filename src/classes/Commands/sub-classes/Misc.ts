@@ -14,7 +14,7 @@ export default class MiscCommands {
         this.bot = bot;
     }
 
-    miscCommand(steamID: SteamID, command: Misc): void {
+    async miscCommand(steamID: SteamID, command: Misc): Promise<void> {
         const opt = this.bot.options.commands[command];
         if (!opt.enable) {
             if (!this.bot.isAdmin(steamID)) {
@@ -26,7 +26,7 @@ export default class MiscCommands {
         const custom = opt.customReply.reply;
         if (command === 'time') {
             const timeWithEmojis = timeNow(this.bot.options);
-            this.bot.sendMessage(steamID, custom
+            await this.bot.sendMessage(steamID, custom
                 ? custom
                     .replace(/%emoji%/g, timeWithEmojis.emoji)
                     .replace(/%time%/g, timeWithEmojis.time)
@@ -36,10 +36,10 @@ export default class MiscCommands {
                 }`);
         } else if (command === 'uptime') {
             const botUptime = uptime();
-            this.bot.sendMessage(steamID, custom ? custom.replace(/%uptime%/g, botUptime) : botUptime);
+            await this.bot.sendMessage(steamID, custom ? custom.replace(/%uptime%/g, botUptime) : botUptime);
         } else if (command === 'pure') {
             const pureStock = pure.stock(this.bot);
-            this.bot.sendMessage(steamID, custom
+            await this.bot.sendMessage(steamID, custom
                 ? custom.replace(/%pure%/g, pureStock.join(' and '))
                 : `💰 I have ${pureStock.join(' and ')} in my inventory.`);
         } else if (command === 'rate') {
@@ -53,7 +53,7 @@ export default class MiscCommands {
                     ? 'custom-pricer'
                     : 'https://api.prices.tf/items/5021;6?src=bptf';
 
-            this.bot.sendMessage(steamID, custom
+            await this.bot.sendMessage(steamID, custom
                 ? custom
                     .replace(/%keyRate%/g, keyRate)
                     .replace(/%keyPrices%/g, `${key.buy.metal} / ${key.sell.toString()}`)
@@ -71,7 +71,7 @@ export default class MiscCommands {
             const steamURL = `https://steamcommunity.com/profiles/${firstAdmin.toString()}`;
             const bptfURL = `https://backpack.tf/profiles/${firstAdmin.toString()}`;
 
-            this.bot.sendMessage(steamID, custom
+            await this.bot.sendMessage(steamID, custom
                 ? custom
                     .replace(/%steamurl%/g, steamURL)
                     .replace(/%bptfurl%/g, bptfURL)
@@ -88,7 +88,7 @@ export default class MiscCommands {
                     //
                 } else return this.bot.sendMessage(steamID, '❌ The owner have not set the Discord invite link.');
             }
-            this.bot.sendMessage(steamID, reply);
+            await this.bot.sendMessage(steamID, reply);
         } else {
             const inventory = this.bot.inventoryManager.getInventory;
             const dict = inventory.getItems;
@@ -168,7 +168,7 @@ export default class MiscCommands {
                 reply += `,\nand ${left} other ${pluralize('item', left)}`;
             }
 
-            this.bot.sendMessage(steamID, reply);
+            await this.bot.sendMessage(steamID, reply);
         }
     }
 

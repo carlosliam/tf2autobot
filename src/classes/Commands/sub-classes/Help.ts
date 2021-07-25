@@ -184,7 +184,7 @@ export default class HelpCommands {
         }
     }
 
-    moreCommand(steamID: SteamID): void {
+    async moreCommand(steamID: SteamID): Promise<void> {
         const opt = this.bot.options.commands.more;
 
         if (!opt.enable) {
@@ -194,7 +194,7 @@ export default class HelpCommands {
             }
         }
 
-        this.bot.sendMessage(
+        return this.bot.sendMessage(
             steamID,
             `Misc commands list:\n- ${[
                 "!autokeys - Get info on the bot's current autokeys settings 🔑",
@@ -209,10 +209,10 @@ export default class HelpCommands {
         );
     }
 
-    howToTradeCommand(steamID: SteamID): void {
+    async howToTradeCommand(steamID: SteamID): Promise<void> {
         const custom = this.bot.options.commands.how2trade.customReply.reply;
 
-        this.bot.sendMessage(
+        return this.bot.sendMessage(
             steamID,
             custom
                 ? custom

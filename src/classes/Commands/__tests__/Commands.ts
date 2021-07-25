@@ -7,6 +7,7 @@ import InventoryManager from '../../InventoryManager';
 import { setupPricelist } from '../../__tests__/Pricelist';
 import Inventory from '../../Inventory';
 import SchemaManager from 'tf2-schema-2';
+import mock from '../../../lib/__mocks__/pricer-api';
 
 jest.mock('../../MyHandler/SocketManager');
 jest.mock('../../Friends');
@@ -35,6 +36,10 @@ it('can run id commands', async () => {
     bot.schema = schemaManager.schema;
     bot.options = options;
     bot.pricelist = priceList;
+    // override to prevent interval from hanging test
+    bot.refreshSchemaProperties = () => {
+        return;
+    };
     bot.setProperties();
     const inventory = new Inventory(
         adminId,

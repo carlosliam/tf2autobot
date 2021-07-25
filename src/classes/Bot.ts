@@ -615,7 +615,7 @@ export default class Bot {
         this.refreshSchemaProperties();
     }
 
-    private refreshSchemaProperties(): void {
+    refreshSchemaProperties(): void {
         this.updateSchemaPropertiesInterval = setInterval(() => {
             this.setProperties();
         }, 24 * 60 * 60 * 1000);

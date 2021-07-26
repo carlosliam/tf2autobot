@@ -108,7 +108,7 @@ export default class RequestCommands {
                 reply += `,\n\nand ${left} other ${pluralize('sale', left)}`;
             }
 
-            this.bot.sendMessage(steamID, reply);
+            return this.bot.sendMessage(steamID, reply);
         } catch (err) {
             return this.bot.sendMessage(
                 steamID,
@@ -121,7 +121,7 @@ export default class RequestCommands {
         }
     }
 
-    pricecheckCommand(steamID: SteamID, message: string): Promise<void> {
+    async pricecheckCommand(steamID: SteamID, message: string): Promise<void> {
         const params = CommandParser.parseParams(CommandParser.removeCommand(removeLinkProtocol(message)));
         if (params.sku !== undefined && !testSKU(params.sku as string)) {
             return this.bot.sendMessage(steamID, `❌ "sku" should not be empty or wrong format.`);
@@ -143,25 +143,28 @@ export default class RequestCommands {
 
         params.sku = fixSKU(params.sku);
 
-        void this.requestCheck(params.sku, 'bptf').asCallback((err: ErrorRequest, body: RequestCheckResponse) => {
-            if (err) {
+        try {
+            const body = await this.requestCheck(params.sku, 'bptf');
+            if (!body) {
+                return this.bot.sendMessage(steamID, '❌ Error while requesting price check (returned null/undefined)');
+            } else {
                 return this.bot.sendMessage(
                     steamID,
-                    `❌ Error while requesting price check: ${
-                        err.body && err.body.message ? err.body.message : err.message
-                    }`
+                    `✅ Requested pricecheck for ${body.name}, the item will be checked.`
                 );
             }
-
-            if (!body) {
-                this.bot.sendMessage(steamID, '❌ Error while requesting price check (returned null/undefined)');
-            } else {
-                this.bot.sendMessage(steamID, `✅ Requested pricecheck for ${body.name}, the item will be checked.`);
-            }
-        });
+        } catch (e) {
+            const err = e as ErrorRequest;
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Error while requesting price check: ${
+                    err.body && err.body.message ? err.body.message : err.message
+                }`
+            );
+        }
     }
 
-    pricecheckAllCommand(steamID: SteamID): Promise<void> {
+    async pricecheckAllCommand(steamID: SteamID): Promise<void> {
         if (Pricecheck.isRunning()) {
             return this.bot.sendMessage(steamID, "❌ Pricecheck is still running. Please wait until it's completed.");
         }
@@ -174,7 +177,7 @@ export default class RequestCommands {
         const aSecond = 1000;
         const aMin = 60 * 1000;
         const anHour = 60 * 60 * 1000;
-        this.bot.sendMessage(
+        await this.bot.sendMessage(
             steamID,
             `⌛ Price check requested for ${total} items. It will be completed in approximately ${
                 totalTime < aMin
@@ -189,7 +192,7 @@ export default class RequestCommands {
         pricecheck.enqueue = skus;
 
         Pricecheck.addJob();
-        void pricecheck.executeCheck();
+        return pricecheck.executeCheck();
     }
 
     async checkCommand(steamID: SteamID, message: string): Promise<void> {
@@ -221,7 +224,7 @@ export default class RequestCommands {
             const currBuy = new Currencies(price.buy);
             const currSell = new Currencies(price.sell);
 
-            this.bot.sendMessage(
+            return this.bot.sendMessage(
                 steamID,
                 `🔎 ${name}:\n• Buy  : ${currBuy.toString()}\n• Sell : ${currSell.toString()}\n\n${
                     customUrl !== 'https://api.prices.tf' ? `Link: ${customUrl}` : 'Prices.TF: https://prices.tf'
@@ -271,38 +274,35 @@ class Pricecheck {
     }
 
     async executeCheck(): Promise<void> {
+        try {
+            await Pricecheck.requestCheck(this.sku, 'bptf');
+            this.submitted++;
+            this.success++;
+            log.debug(
+                `pricecheck for ${this.sku} success, status: ${this.submitted}/${this.remaining}, ${this.success} success, ${this.failed} failed.`
+            );
+        } catch (err) {
+            this.submitted++;
+            this.failed++;
+            const errStringify = JSON.stringify(err);
+            const errMessage = errStringify === '' ? (err as Error)?.message : errStringify;
+            log.warn(`pricecheck failed for ${this.sku}: ${errMessage}`);
+            log.debug(
+                `pricecheck for ${this.sku} failed, status: ${this.submitted}/${this.remaining}, ${this.success} success, ${this.failed} failed.`
+            );
+        }
+        this.dequeue();
+
+        if (this.isEmpty) {
+            Pricecheck.removeJob();
+            return this.bot.sendMessage(
+                this.steamID,
+                `✅ Successfully pricecheck for all ${this.total} ${pluralize('item', this.total)}!`
+            );
+        }
+
         await sleepasync().Promise.sleep(2000);
-
-        void Pricecheck.requestCheck(this.sku, 'bptf').asCallback(err => {
-            if (err) {
-                this.submitted++;
-                this.failed++;
-                const errStringify = JSON.stringify(err);
-                const errMessage = errStringify === '' ? (err as Error)?.message : errStringify;
-                log.warn(`pricecheck failed for ${this.sku}: ${errMessage}`);
-                log.debug(
-                    `pricecheck for ${this.sku} failed, status: ${this.submitted}/${this.remaining}, ${this.success} success, ${this.failed} failed.`
-                );
-            } else {
-                this.submitted++;
-                this.success++;
-                log.debug(
-                    `pricecheck for ${this.sku} success, status: ${this.submitted}/${this.remaining}, ${this.success} success, ${this.failed} failed.`
-                );
-            }
-
-            this.dequeue();
-
-            if (this.isEmpty) {
-                Pricecheck.removeJob();
-                return this.bot.sendMessage(
-                    this.steamID,
-                    `✅ Successfully pricecheck for all ${this.total} ${pluralize('item', this.total)}!`
-                );
-            }
-
-            void this.executeCheck();
-        });
+        return this.executeCheck();
     }
 
     private dequeue(): void {

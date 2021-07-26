@@ -27,6 +27,7 @@ import log from '../lib/logger';
 import { isBanned } from '../lib/bans';
 import Options from './Options';
 import Pricer from './Pricer';
+import { EventEmitter } from 'events';
 
 export default class Bot {
     // Modules and classes
@@ -227,8 +228,12 @@ export default class Bot {
         return this.ready;
     }
 
-    private addListener(emitter: any, event: string, listener: (...args) => void, checkCanEmit: boolean): void {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    private addListener<E extends EventEmitter>(
+        emitter: E,
+        event: string,
+        listener: (...args) => void | Promise<void>,
+        checkCanEmit: boolean
+    ): void {
         emitter.on(event, (...args: any[]) => {
             setImmediate(() => {
                 if (!checkCanEmit || this.canSendEvents()) {
@@ -238,15 +243,26 @@ export default class Bot {
         });
     }
 
-    startVersionChecker(): void {
-        void this.checkForUpdates;
+    async startVersionChecker(): Promise<void> {
+        const checkUpdate = async () => {
+            try {
+                const results = await this.checkForUpdates;
+                if (results.hasNewVersion) {
+                    await this.messageAdmins(
+                        'version',
+                        `⚠️ Update available! Current: v${process.env.BOT_VERSION}, Latest: v${results.latestVersion}.\n\n` +
+                            `Release note: https://github.com/TF2Autobot/tf2autobot/releases`,
+                        []
+                    );
+                }
+            } catch (err) {
+                log.error('Failed to check for updates: ', err);
+            }
+        };
+        await checkUpdate();
 
         // Check for updates every 10 minutes
-        setInterval(() => {
-            this.checkForUpdates.catch(err => {
-                log.error('Failed to check for updates: ', err);
-            });
-        }, 10 * 60 * 1000);
+        setInterval(() => checkUpdate, 10 * 60 * 1000);
     }
 
     get checkForUpdates(): Promise<{ hasNewVersion: boolean; latestVersion: string }> {
@@ -257,13 +273,6 @@ export default class Bot {
 
             if (this.lastNotifiedVersion !== latestVersion && hasNewVersion) {
                 this.lastNotifiedVersion = latestVersion;
-
-                this.messageAdmins(
-                    'version',
-                    `⚠️ Update available! Current: v${process.env.BOT_VERSION}, Latest: v${latestVersion}.\n\n` +
-                        `Release note: https://github.com/TF2Autobot/tf2autobot/releases`,
-                    []
-                );
             }
 
             return { hasNewVersion, latestVersion };
@@ -317,10 +326,19 @@ export default class Bot {
         this.addListener(
             this.client,
             'friendMessage',
-            (steamID: SteamID, message: string) => void this.onMessage(steamID, message).catch(err => log.error(err)),
+            (steamID: SteamID, message: string) =>
+                void this.onMessage(steamID, message).catch(err => log.error(JSON.stringify(err))),
             true
         );
-        this.addListener(this.client, 'friendRelationship', this.handler.onFriendRelationship.bind(this.handler), true);
+        this.addListener(
+            this.client,
+            'friendRelationship',
+            (steamID: SteamID, relationship: number) =>
+                void this.handler
+                    .onFriendRelationship(steamID, relationship)
+                    .catch(err => log.error(JSON.stringify(err))),
+            true
+        );
         this.addListener(this.client, 'groupRelationship', this.handler.onGroupRelationship.bind(this.handler), true);
         this.addListener(this.client, 'webSession', this.onWebSession.bind(this), false);
         this.addListener(this.client, 'steamGuard', this.onSteamGuard.bind(this), false);
@@ -583,9 +601,15 @@ export default class Bot {
 
                     this.manager.pollInterval = 5 * 1000;
                     this.setReady = true;
-                    this.handler.onReady();
-                    this.manager.doPoll();
-                    this.startVersionChecker();
+                    this.handler
+                        .onReady()
+                        .then(() => {
+                            this.manager.doPoll();
+                            return this.startVersionChecker();
+                        })
+                        .then(() => {
+                            resolve();
+                        });
 
                     return resolve();
                 }

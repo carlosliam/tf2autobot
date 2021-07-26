@@ -944,7 +944,7 @@ export default class Pricelist extends EventEmitter {
         );
     }
 
-    private handlePriceChange(data: GetItemPriceResponse): void {
+    private async handlePriceChange(data: GetItemPriceResponse): Promise<void> {
         if (data.source !== 'bptf') {
             return;
         }
@@ -1085,9 +1085,9 @@ export default class Pricelist extends EventEmitter {
 
                     if (opt.sendAlert.enable && opt.sendAlert.partialPrice.onUpdate) {
                         if (this.isDwAlertEnabled) {
-                            sendAlert('isPartialPriced', this.bot, msg);
+                            await sendAlert('isPartialPriced', this.bot, msg);
                         } else {
-                            this.bot.messageAdmins('Partial price update\n\n' + msg, []);
+                            await this.bot.messageAdmins('Partial price update\n\n' + msg, []);
                         }
                     }
                 } else {
@@ -1123,9 +1123,9 @@ export default class Pricelist extends EventEmitter {
 
                         if (opt.sendAlert.enable && opt.sendAlert.partialPrice.onResetAfterThreshold) {
                             if (this.isDwAlertEnabled) {
-                                sendAlert('autoResetPartialPrice', this.bot, msg);
+                                await sendAlert('autoResetPartialPrice', this.bot, msg);
                             } else {
-                                this.bot.messageAdmins('Partial price reset\n\n' + msg, []);
+                                await this.bot.messageAdmins('Partial price reset\n\n' + msg, []);
                             }
                         }
                     }

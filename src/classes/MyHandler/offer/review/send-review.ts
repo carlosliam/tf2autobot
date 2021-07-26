@@ -51,35 +51,38 @@ export default async function sendReview(
                     : 'Steam is down and I failed to check your Escrow (Trade holds)' +
                       ' status, please wait for my owner to manually accept/decline your offer.';
             }
-            bot.sendMessage(offer.partner, reply);
+            await bot.sendMessage(offer.partner, reply);
         } else {
-            bot.sendMessage(offer.partner, `⚠️ Your offer is pending review.\nReasons: ${reasons}` +
-                (opt.manualReview.showOfferSummary
-                    ? t
-                        .summarizeToChat(offer, bot, 'review-partner', false, content.value, keyPrices, true)
-                        .replace('Asked', '  My side')
-                        .replace('Offered', 'Your side') +
-                    (reasons.includes('🟥_INVALID_VALUE') && !reasons.includes('🟨_INVALID_ITEMS')
-                        ? content.missing
+            await bot.sendMessage(
+                offer.partner,
+                `⚠️ Your offer is pending review.\nReasons: ${reasons}` +
+                    (opt.manualReview.showOfferSummary
+                        ? t
+                              .summarizeToChat(offer, bot, 'review-partner', false, content.value, keyPrices, true)
+                              .replace('Asked', '  My side')
+                              .replace('Offered', 'Your side') +
+                          (reasons.includes('🟥_INVALID_VALUE') && !reasons.includes('🟨_INVALID_ITEMS')
+                              ? content.missing
+                              : '') +
+                          (opt.manualReview.showReviewOfferNote
+                              ? `\n\nNote:\n${
+                                    content.notes.join('\n') +
+                                    (hasCustomNote ? '' : '\n\nPlease wait for a response from the owner.')
+                                }`
+                              : '')
                         : '') +
-                    (opt.manualReview.showReviewOfferNote
-                        ? `\n\nNote:\n${
-                            content.notes.join('\n') +
-                            (hasCustomNote ? '' : '\n\nPlease wait for a response from the owner.')
-                        }`
+                    (opt.manualReview.additionalNotes
+                        ? '\n\n' +
+                          opt.manualReview.additionalNotes
+                              .replace(/%keyRate%/g, `${keyPrices.buy.toString()}/${keyPrices.sell.toString()}`)
+                              .replace(/%pureStock%/g, t.pure.stock(bot).join(', ').toString())
+                        : '') +
+                    (opt.manualReview.showOwnerCurrentTime
+                        ? `\n\nIt is currently the following time in my owner's timezone: ${time.emoji} ${
+                              time.time + (time.note !== '' ? `. ${time.note}.` : '.')
+                          }`
                         : '')
-                    : '') +
-                (opt.manualReview.additionalNotes
-                    ? '\n\n' +
-                    opt.manualReview.additionalNotes
-                        .replace(/%keyRate%/g, `${keyPrices.buy.toString()}/${keyPrices.sell.toString()}`)
-                        .replace(/%pureStock%/g, t.pure.stock(bot).join(', ').toString())
-                    : '') +
-                (opt.manualReview.showOwnerCurrentTime
-                    ? `\n\nIt is currently the following time in my owner's timezone: ${time.emoji} ${
-                        time.time + (time.note !== '' ? `. ${time.note}.` : '.')
-                    }`
-                    : ''));
+            );
         }
     }
 
@@ -186,17 +189,17 @@ export async function sendToAdmin(
         log.warn('Message more than 5000 character');
 
         log.debug('Sending message 1');
-        bot.messageAdmins(message1, []);
+        await bot.messageAdmins(message1, []);
         await sleepasync().Promise.sleep(1500); // bruh
         log.debug('Sending message 2');
-        bot.messageAdmins(message2, []);
+        await bot.messageAdmins(message2, []);
         await sleepasync().Promise.sleep(1500);
         log.debug('Sending message 3');
-        bot.messageAdmins(message3, []);
+        await bot.messageAdmins(message3, []);
         await sleepasync().Promise.sleep(1000);
         log.debug('Sending message 4');
         return bot.messageAdmins(message4, []);
     }
 
-    bot.messageAdmins(message, []);
+    await bot.messageAdmins(message, []);
 }

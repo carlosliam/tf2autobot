@@ -51,15 +51,21 @@ export default class OptionsCommands {
         const optionsKeys = Object.keys(liveOptions);
 
         if (!optKey) {
-            return this.bot.sendMessage(steamID, '❌ Wrong syntax. Please include any valid options parent key.\nExample: "!options miscSettings"' +
-                '\n\nValid options parent keys:\n• ' +
-                optionsKeys.join('\n• '));
+            return this.bot.sendMessage(
+                steamID,
+                '❌ Wrong syntax. Please include any valid options parent key.\nExample: "!options miscSettings"' +
+                    '\n\nValid options parent keys:\n• ' +
+                    optionsKeys.join('\n• ')
+            );
         } else {
             if (!optionsKeys.includes(optKey)) {
                 isSending = false;
-                return this.bot.sendMessage(steamID, `❌ "${optKey}" parent key does not exist in options.` +
-                    `\n\nValid parent keys:\n• ` +
-                    optionsKeys.join('\n• '));
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ "${optKey}" parent key does not exist in options.` +
+                        `\n\nValid parent keys:\n• ` +
+                        optionsKeys.join('\n• ')
+                );
             }
 
             // hard-coding bad 🙄
@@ -68,189 +74,228 @@ export default class OptionsCommands {
 
             if (optKey === 'tradeSummary') {
                 const webhook = liveOptions['tradeSummary'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        tradeSummary: {
-                            declinedTrade: webhook.declinedTrade,
-                            showStockChanges: webhook.showStockChanges,
-                            showTimeTakenInMS: webhook.showTimeTakenInMS,
-                            showDetailedTimeTaken: webhook.showDetailedTimeTaken,
-                            showItemPrices: webhook.showItemPrices,
-                            showPureInEmoji: webhook.showPureInEmoji,
-                            showProperName: webhook.showProperName
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            tradeSummary: {
+                                declinedTrade: webhook.declinedTrade,
+                                showStockChanges: webhook.showStockChanges,
+                                showTimeTakenInMS: webhook.showTimeTakenInMS,
+                                showDetailedTimeTaken: webhook.showDetailedTimeTaken,
+                                showItemPrices: webhook.showItemPrices,
+                                showPureInEmoji: webhook.showPureInEmoji,
+                                showProperName: webhook.showProperName
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
                 const ct = webhook.customText;
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        tradeSummary: {
-                            customText: {
-                                summary: ct.summary,
-                                asked: ct.asked,
-                                offered: ct.offered
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            tradeSummary: {
+                                customText: {
+                                    summary: ct.summary,
+                                    asked: ct.asked,
+                                    offered: ct.offered
+                                }
                             }
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        tradeSummary: {
-                            customText: {
-                                profitFromOverpay: ct.profitFromOverpay,
-                                lossFromUnderpay: ct.lossFromUnderpay
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            tradeSummary: {
+                                customText: {
+                                    profitFromOverpay: ct.profitFromOverpay,
+                                    lossFromUnderpay: ct.lossFromUnderpay
+                                }
                             }
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        tradeSummary: {
-                            customText: {
-                                timeTaken: ct.timeTaken,
-                                keyRate: ct.keyRate,
-                                pureStock: ct.pureStock,
-                                totalItems: ct.totalItems
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            tradeSummary: {
+                                customText: {
+                                    timeTaken: ct.timeTaken,
+                                    keyRate: ct.keyRate,
+                                    pureStock: ct.pureStock,
+                                    totalItems: ct.totalItems
+                                }
                             }
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        tradeSummary: {
-                            customText: {
-                                spells: ct.spells,
-                                strangeParts: ct.strangeParts,
-                                killstreaker: ct.killstreaker,
-                                sheen: ct.sheen,
-                                painted: ct.painted
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            tradeSummary: {
+                                customText: {
+                                    spells: ct.spells,
+                                    strangeParts: ct.strangeParts,
+                                    killstreaker: ct.killstreaker,
+                                    sheen: ct.sheen,
+                                    painted: ct.painted
+                                }
                             }
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'offerReceived') {
                 const webhook = liveOptions['offerReceived'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        offerReceived: {
-                            sendPreAcceptMessage: webhook.sendPreAcceptMessage,
-                            alwaysDeclineNonTF2Items: webhook.alwaysDeclineNonTF2Items,
-                            invalidValue: webhook.invalidValue
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            offerReceived: {
+                                sendPreAcceptMessage: webhook.sendPreAcceptMessage,
+                                alwaysDeclineNonTF2Items: webhook.alwaysDeclineNonTF2Items,
+                                invalidValue: webhook.invalidValue
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        offerReceived: {
-                            invalidItems: webhook.invalidItems,
-                            disabledItems: webhook.disabledItems
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            offerReceived: {
+                                invalidItems: webhook.invalidItems,
+                                disabledItems: webhook.disabledItems
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        offerReceived: {
-                            overstocked: webhook.overstocked,
-                            understocked: webhook.understocked
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            offerReceived: {
+                                overstocked: webhook.overstocked,
+                                understocked: webhook.understocked
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        offerReceived: {
-                            duped: webhook.duped,
-                            escrowCheckFailed: webhook.escrowCheckFailed,
-                            bannedCheckFailed: webhook.bannedCheckFailed
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            offerReceived: {
+                                duped: webhook.duped,
+                                escrowCheckFailed: webhook.escrowCheckFailed,
+                                bannedCheckFailed: webhook.bannedCheckFailed
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'manualReview') {
                 const webhook = liveOptions['manualReview'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        manualReview: {
-                            enable: webhook.enable,
-                            showOfferSummary: webhook.showOfferSummary,
-                            showReviewOfferNote: webhook.showReviewOfferNote,
-                            showOwnerCurrentTime: webhook.showOwnerCurrentTime,
-                            showItemPrices: webhook.showItemPrices
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            manualReview: {
+                                enable: webhook.enable,
+                                showOfferSummary: webhook.showOfferSummary,
+                                showReviewOfferNote: webhook.showReviewOfferNote,
+                                showOwnerCurrentTime: webhook.showOwnerCurrentTime,
+                                showItemPrices: webhook.showItemPrices
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        manualReview: {
-                            invalidValue: webhook.invalidValue,
-                            invalidItems: webhook.invalidItems,
-                            disabledItems: webhook.disabledItems
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            manualReview: {
+                                invalidValue: webhook.invalidValue,
+                                invalidItems: webhook.invalidItems,
+                                disabledItems: webhook.disabledItems
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        manualReview: {
-                            overstocked: webhook.overstocked,
-                            understocked: webhook.understocked,
-                            duped: webhook.duped,
-                            dupedCheckFailed: webhook.dupedCheckFailed
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            manualReview: {
+                                overstocked: webhook.overstocked,
+                                understocked: webhook.understocked,
+                                duped: webhook.duped,
+                                dupedCheckFailed: webhook.dupedCheckFailed
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        manualReview: {
-                            escrowCheckFailed: webhook.escrowCheckFailed,
-                            bannedCheckFailed: webhook.bannedCheckFailed,
-                            additionalNotes: webhook.additionalNotes
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            manualReview: {
+                                escrowCheckFailed: webhook.escrowCheckFailed,
+                                bannedCheckFailed: webhook.bannedCheckFailed,
+                                additionalNotes: webhook.additionalNotes
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'discordWebhook') {
                 /*
                 const webhook = liveOptions['discordWebhook'];
@@ -267,316 +312,394 @@ export default class OptionsCommands {
                 */
 
                 const webhook = liveOptions['discordWebhook'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        discordWebhook: {
-                            ownerID: webhook.ownerID,
-                            displayName: webhook.displayName,
-                            avatarURL: webhook.avatarURL,
-                            embedColor: webhook.embedColor
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            discordWebhook: {
+                                ownerID: webhook.ownerID,
+                                displayName: webhook.displayName,
+                                avatarURL: webhook.avatarURL,
+                                embedColor: webhook.embedColor
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        discordWebhook: {
-                            tradeSummary: webhook.tradeSummary
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            discordWebhook: {
+                                tradeSummary: webhook.tradeSummary
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        discordWebhook: {
-                            declinedTrade: webhook.declinedTrade,
-                            offerReview: webhook.offerReview
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            discordWebhook: {
+                                declinedTrade: webhook.declinedTrade,
+                                offerReview: webhook.offerReview
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        discordWebhook: {
-                            messages: webhook.messages,
-                            priceUpdate: webhook.priceUpdate
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            discordWebhook: {
+                                messages: webhook.messages,
+                                priceUpdate: webhook.priceUpdate
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        discordWebhook: {
-                            sendAlert: webhook.sendAlert,
-                            sendStats: webhook.sendStats
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            discordWebhook: {
+                                sendAlert: webhook.sendAlert,
+                                sendStats: webhook.sendStats
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'customMessage') {
                 const webhook = liveOptions['customMessage'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        customMessage: {
-                            sendOffer: webhook.sendOffer,
-                            welcome: webhook.welcome,
-                            iDontKnowWhatYouMean: webhook.iDontKnowWhatYouMean,
-                            success: webhook.success,
-                            successEscrow: webhook.successEscrow
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            customMessage: {
+                                sendOffer: webhook.sendOffer,
+                                welcome: webhook.welcome,
+                                iDontKnowWhatYouMean: webhook.iDontKnowWhatYouMean,
+                                success: webhook.success,
+                                successEscrow: webhook.successEscrow
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        customMessage: {
-                            decline: webhook.decline
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            customMessage: {
+                                decline: webhook.decline
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        customMessage: {
-                            accepted: webhook.accepted
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            customMessage: {
+                                accepted: webhook.accepted
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        customMessage: {
-                            tradedAway: webhook.tradedAway,
-                            failedMobileConfirmation: webhook.failedMobileConfirmation,
-                            cancelledActiveForAwhile: webhook.cancelledActiveForAwhile,
-                            clearFriends: webhook.clearFriends
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            customMessage: {
+                                tradedAway: webhook.tradedAway,
+                                failedMobileConfirmation: webhook.failedMobileConfirmation,
+                                cancelledActiveForAwhile: webhook.cancelledActiveForAwhile,
+                                clearFriends: webhook.clearFriends
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'commands') {
                 const webhook = liveOptions['commands'];
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            enable: webhook.enable,
-                            customDisableReply: webhook.customDisableReply,
-                            how2trade: webhook.how2trade,
-                            price: webhook.price
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                enable: webhook.enable,
+                                customDisableReply: webhook.customDisableReply,
+                                how2trade: webhook.how2trade,
+                                price: webhook.price
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            buy: webhook.buy,
-                            sell: webhook.sell
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                buy: webhook.buy,
+                                sell: webhook.sell
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            buycart: webhook.buycart,
-                            sellcart: webhook.sellcart
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                buycart: webhook.buycart,
+                                sellcart: webhook.sellcart
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            cart: webhook.cart,
-                            clearcart: webhook.clearcart
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                cart: webhook.cart,
+                                clearcart: webhook.clearcart
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            checkout: webhook.checkout
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                checkout: webhook.checkout
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            addToQueue: webhook.addToQueue
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                addToQueue: webhook.addToQueue
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            cancel: webhook.cancel
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                cancel: webhook.cancel
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            queue: webhook.queue
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                queue: webhook.queue
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            owner: webhook.owner,
-                            discord: webhook.discord
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                owner: webhook.owner,
+                                discord: webhook.discord
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            more: webhook.more,
-                            autokeys: webhook.autokeys
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                more: webhook.more,
+                                autokeys: webhook.autokeys
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            message: webhook.message,
-                            time: webhook.time
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                message: webhook.message,
+                                time: webhook.time
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            uptime: webhook.uptime,
-                            pure: webhook.pure
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                uptime: webhook.uptime,
+                                pure: webhook.pure
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            rate: webhook.rate,
-                            stock: webhook.stock
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                rate: webhook.rate,
+                                stock: webhook.stock
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        commands: {
-                            craftweapon: webhook.craftweapon,
-                            uncraftweapon: webhook.uncraftweapon
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            commands: {
+                                craftweapon: webhook.craftweapon,
+                                uncraftweapon: webhook.uncraftweapon
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
             } else if (optKey === 'detailsExtra') {
                 const webhook = liveOptions['detailsExtra'];
 
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        detailsExtra: {
-                            spells: webhook.spells
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            detailsExtra: {
+                                spells: webhook.spells
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        detailsExtra: {
-                            sheens: webhook.sheens
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            detailsExtra: {
+                                sheens: webhook.sheens
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
-                this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                    {
-                        detailsExtra: {
-                            killstreakers: webhook.killstreakers
-                        }
-                    },
-                    null,
-                    2
-                )}`);
+                this.bot.sendMessage(
+                    steamID,
+                    `/code ${JSON.stringify(
+                        {
+                            detailsExtra: {
+                                killstreakers: webhook.killstreakers
+                            }
+                        },
+                        null,
+                        2
+                    )}`
+                );
 
                 await sleepasync().Promise.sleep(3000);
                 const paints = webhook.painted;
@@ -601,15 +724,18 @@ export default class OptionsCommands {
                     keysIndexPaint += 3;
 
                     if (Object.keys(obj).length > 0) {
-                        this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                            {
-                                detailsExtra: {
-                                    painted: obj
-                                }
-                            },
-                            null,
-                            2
-                        )}`);
+                        this.bot.sendMessage(
+                            steamID,
+                            `/code ${JSON.stringify(
+                                {
+                                    detailsExtra: {
+                                        painted: obj
+                                    }
+                                },
+                                null,
+                                2
+                            )}`
+                        );
 
                         await sleepasync().Promise.sleep(3000);
                     }
@@ -637,15 +763,18 @@ export default class OptionsCommands {
                     keysIndex += 7;
 
                     if (Object.keys(obj).length > 0) {
-                        this.bot.sendMessage(steamID, `/code ${JSON.stringify(
-                            {
-                                detailsExtra: {
-                                    strangeParts: obj
-                                }
-                            },
-                            null,
-                            2
-                        )}`);
+                        this.bot.sendMessage(
+                            steamID,
+                            `/code ${JSON.stringify(
+                                {
+                                    detailsExtra: {
+                                        strangeParts: obj
+                                    }
+                                },
+                                null,
+                                2
+                            )}`
+                        );
 
                         await sleepasync().Promise.sleep(3000);
                     }
@@ -716,7 +845,8 @@ export default class OptionsCommands {
             return;
         }
         const msg = '✅ Updated options!';
-        return fsp.writeFile(optionsPath, JSON.stringify(saveOptions, null, 4), { encoding: 'utf8' })
+        return fsp
+            .writeFile(optionsPath, JSON.stringify(saveOptions, null, 4), { encoding: 'utf8' })
             .then(() => {
                 deepMerge(opt, saveOptions);
                 const asyncUpdates = [];
@@ -759,7 +889,8 @@ export default class OptionsCommands {
 
                 if (knownParams.highValue !== undefined) {
                     asyncUpdates.push(
-                        this.bot.inventoryManager.getInventory.fetch()
+                        this.bot.inventoryManager.getInventory
+                            .fetch()
                             .then(() => Inventory.setOptions(this.bot.paints, this.bot.strangeParts, opt.highValue))
                     );
                 }
@@ -771,7 +902,8 @@ export default class OptionsCommands {
                 if (typeof knownParams.autokeys === 'object') {
                     if (knownParams.autokeys.enable !== undefined && !knownParams.autokeys.enable) {
                         asyncUpdates.push(
-                            this.bot.handler.autokeys.disable(this.bot.pricelist.getKeyPrices)
+                            this.bot.handler.autokeys
+                                .disable(this.bot.pricelist.getKeyPrices)
                                 .then(() => this.bot.handler.autokeys.check())
                         );
                     } else {
@@ -945,7 +1077,8 @@ export default class OptionsCommands {
             return;
         }
 
-        return fsp.writeFile(optionsPath, JSON.stringify(saveOptions, null, 4), { encoding: 'utf8' })
+        return fsp
+            .writeFile(optionsPath, JSON.stringify(saveOptions, null, 4), { encoding: 'utf8' })
             .then(() => {
                 deepMerge({}, saveOptions);
                 const msg = '✅ Updated options!';

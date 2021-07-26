@@ -5,7 +5,7 @@ import * as t from '../../../lib/tools/export';
 import sendTradeDeclined from '../../../lib/DiscordWebhook/sendTradeDeclined';
 import { KeyPrices } from '../../../classes/Pricelist';
 
-export default function processDeclined(offer: i.TradeOffer, bot: Bot, isTradingKeys: boolean): void {
+export default function processDeclined(offer: i.TradeOffer, bot: Bot, isTradingKeys: boolean): Promise<void> {
     const opt = bot.options;
 
     const declined: Declined = {
@@ -263,12 +263,12 @@ export default function processDeclined(offer: i.TradeOffer, bot: Bot, isTrading
         const value = t.valueDiff(offer, keyPrices, isTradingKeys, opt.miscSettings.showOnlyMetal.enable);
         const itemList = t.listItems(offer, bot, itemsName, true);
 
-        sendToAdmin(bot, offer, value, itemList, keyPrices, isOfferSent, timeTakenToProcessOrConstruct);
+        return sendToAdmin(bot, offer, value, itemList, keyPrices, isOfferSent, timeTakenToProcessOrConstruct);
     }
     //else it's sent by us and they declined it so we don't care ?
 }
 
-export function sendToAdmin(
+export async function sendToAdmin(
     bot: Bot,
     offer: i.TradeOffer,
     value: t.ValueDiff,
@@ -276,7 +276,7 @@ export function sendToAdmin(
     keyPrices: KeyPrices,
     isOfferSent: boolean,
     timeTakenToProcessOrConstruct: number
-): void {
+): Promise<void> {
     const slots = bot.tf2.backpackSlots;
     const autokeys = bot.handler.autokeys;
     const status = autokeys.getOverallStatus;
@@ -292,36 +292,40 @@ export function sendToAdmin(
     const customInitializer = bot.options.steamChat.customInitializer.declinedTradeSummary;
     const isCustomPricer = bot.pricelist.isUseCustomPricer;
 
-    bot.messageAdmins('trade', `${customInitializer ? customInitializer : '/me'} Trade #${
+    await bot.messageAdmins(
+        'trade',
+        `${customInitializer ? customInitializer : '/me'} Trade #${
             offer.id
         } with ${offer.partner.getSteamID64()} was declined. ❌` +
-        t.summarizeToChat(offer, bot, 'declined', false, value, keyPrices, true, isOfferSent) +
-        (offerMessage.length !== 0 ? `\n\n💬 Offer message: "${offerMessage}"` : '') +
-        (itemList !== '-' ? `\n\nItem lists:\n${itemList}` : '') +
-        `\n\n${cTKeyRate} ${keyPrices.buy.toString()}/${keyPrices.sell.toString()}` +
-        ` (${keyPrices.src === 'manual' ? 'manual' : isCustomPricer ? 'custom-pricer' : 'prices.tf'})` +
-        `${
-            autokeys.isEnabled
-                ? ' | Autokeys: ' +
-                (autokeys.getActiveStatus
-                    ? '✅' +
-                    (status.isBankingKeys ? ' (banking)' : status.isBuyingKeys ? ' (buying)' : ' (selling)')
-                    : '🛑')
-                : ''
-        }` +
-        `\n${cTPureStock} ${t.pure.stock(bot).join(', ').toString()}` +
-        `\n${cTTotalItems} ${bot.inventoryManager.getInventory.getTotalItems}${
-            slots !== undefined ? `/${slots}` : ''
-        }` +
-        `\n${cTTimeTaken} ${t.convertTime(
-            null,
-            timeTakenToProcessOrConstruct,
-            undefined,
-            isOfferSent,
-            tSum.showDetailedTimeTaken,
-            tSum.showTimeTakenInMS
-        )}` +
-        `\n\nVersion ${process.env.BOT_VERSION}`, []);
+            t.summarizeToChat(offer, bot, 'declined', false, value, keyPrices, true, isOfferSent) +
+            (offerMessage.length !== 0 ? `\n\n💬 Offer message: "${offerMessage}"` : '') +
+            (itemList !== '-' ? `\n\nItem lists:\n${itemList}` : '') +
+            `\n\n${cTKeyRate} ${keyPrices.buy.toString()}/${keyPrices.sell.toString()}` +
+            ` (${keyPrices.src === 'manual' ? 'manual' : isCustomPricer ? 'custom-pricer' : 'prices.tf'})` +
+            `${
+                autokeys.isEnabled
+                    ? ' | Autokeys: ' +
+                      (autokeys.getActiveStatus
+                          ? '✅' +
+                            (status.isBankingKeys ? ' (banking)' : status.isBuyingKeys ? ' (buying)' : ' (selling)')
+                          : '🛑')
+                    : ''
+            }` +
+            `\n${cTPureStock} ${t.pure.stock(bot).join(', ').toString()}` +
+            `\n${cTTotalItems} ${bot.inventoryManager.getInventory.getTotalItems}${
+                slots !== undefined ? `/${slots}` : ''
+            }` +
+            `\n${cTTimeTaken} ${t.convertTime(
+                null,
+                timeTakenToProcessOrConstruct,
+                undefined,
+                isOfferSent,
+                tSum.showDetailedTimeTaken,
+                tSum.showTimeTakenInMS
+            )}` +
+            `\n\nVersion ${process.env.BOT_VERSION}`,
+        []
+    );
 }
 
 interface Declined {

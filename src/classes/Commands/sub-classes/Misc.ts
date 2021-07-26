@@ -26,22 +26,28 @@ export default class MiscCommands {
         const custom = opt.customReply.reply;
         if (command === 'time') {
             const timeWithEmojis = timeNow(this.bot.options);
-            await this.bot.sendMessage(steamID, custom
-                ? custom
-                    .replace(/%emoji%/g, timeWithEmojis.emoji)
-                    .replace(/%time%/g, timeWithEmojis.time)
-                    .replace(/%note%/g, timeWithEmojis.note)
-                : `It is currently the following time in my owner's timezone: ${timeWithEmojis.emoji} ${
-                    timeWithEmojis.time + (timeWithEmojis.note !== '' ? `.\n\n${timeWithEmojis.note}.` : '.')
-                }`);
+            await this.bot.sendMessage(
+                steamID,
+                custom
+                    ? custom
+                          .replace(/%emoji%/g, timeWithEmojis.emoji)
+                          .replace(/%time%/g, timeWithEmojis.time)
+                          .replace(/%note%/g, timeWithEmojis.note)
+                    : `It is currently the following time in my owner's timezone: ${timeWithEmojis.emoji} ${
+                          timeWithEmojis.time + (timeWithEmojis.note !== '' ? `.\n\n${timeWithEmojis.note}.` : '.')
+                      }`
+            );
         } else if (command === 'uptime') {
             const botUptime = uptime();
             await this.bot.sendMessage(steamID, custom ? custom.replace(/%uptime%/g, botUptime) : botUptime);
         } else if (command === 'pure') {
             const pureStock = pure.stock(this.bot);
-            await this.bot.sendMessage(steamID, custom
-                ? custom.replace(/%pure%/g, pureStock.join(' and '))
-                : `💰 I have ${pureStock.join(' and ')} in my inventory.`);
+            await this.bot.sendMessage(
+                steamID,
+                custom
+                    ? custom.replace(/%pure%/g, pureStock.join(' and '))
+                    : `💰 I have ${pureStock.join(' and ')} in my inventory.`
+            );
         } else if (command === 'rate') {
             const key = this.bot.pricelist.getKeyPrices;
             const isCustomPricer = this.bot.pricelist.isUseCustomPricer;
@@ -53,30 +59,36 @@ export default class MiscCommands {
                     ? 'custom-pricer'
                     : 'https://api.prices.tf/items/5021;6?src=bptf';
 
-            await this.bot.sendMessage(steamID, custom
-                ? custom
-                    .replace(/%keyRate%/g, keyRate)
-                    .replace(/%keyPrices%/g, `${key.buy.metal} / ${key.sell.toString()}`)
-                    .replace(/%source%/g, source)
-                : 'I value 🔑 Mann Co. Supply Crate Keys at ' +
-                keyRate +
-                '. This means that one key is the same as ' +
-                keyRate +
-                ', and ' +
-                keyRate +
-                ' is the same as one key.' +
-                `\n\nKey rate source: ${source}`);
+            await this.bot.sendMessage(
+                steamID,
+                custom
+                    ? custom
+                          .replace(/%keyRate%/g, keyRate)
+                          .replace(/%keyPrices%/g, `${key.buy.metal} / ${key.sell.toString()}`)
+                          .replace(/%source%/g, source)
+                    : 'I value 🔑 Mann Co. Supply Crate Keys at ' +
+                          keyRate +
+                          '. This means that one key is the same as ' +
+                          keyRate +
+                          ', and ' +
+                          keyRate +
+                          ' is the same as one key.' +
+                          `\n\nKey rate source: ${source}`
+            );
         } else if (command === 'owner') {
             const firstAdmin = this.bot.getAdmins[0];
             const steamURL = `https://steamcommunity.com/profiles/${firstAdmin.toString()}`;
             const bptfURL = `https://backpack.tf/profiles/${firstAdmin.toString()}`;
 
-            await this.bot.sendMessage(steamID, custom
-                ? custom
-                    .replace(/%steamurl%/g, steamURL)
-                    .replace(/%bptfurl%/g, bptfURL)
-                    .replace(/%steamid%/, firstAdmin.toString())
-                : `• Steam: ${steamURL}\n• Backpack.tf: ${bptfURL}`);
+            await this.bot.sendMessage(
+                steamID,
+                custom
+                    ? custom
+                          .replace(/%steamurl%/g, steamURL)
+                          .replace(/%bptfurl%/g, bptfURL)
+                          .replace(/%steamid%/, firstAdmin.toString())
+                    : `• Steam: ${steamURL}\n• Backpack.tf: ${bptfURL}`
+            );
         } else if (command === 'discord') {
             const inviteURL = (opt as Discord).inviteURL;
             let reply: string;
@@ -196,7 +208,7 @@ export default class MiscCommands {
                       type === 'craftweapon' ? 'craft' : 'uncraft'
                   } weapons stock in my inventory:\n\n`;
 
-            this.bot.sendMessage(steamID, reply);
+            await this.bot.sendMessage(steamID, reply);
 
             const listCount = weaponStock.length;
             const limit = 15;
@@ -208,7 +220,10 @@ export default class MiscCommands {
 
                 const firstOrLast = i < 1 ? limit : i15 + (listCount - i15);
 
-                this.bot.sendMessage(steamID, weaponStock.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
+                await this.bot.sendMessage(
+                    steamID,
+                    weaponStock.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n')
+                );
 
                 await sleepasync().Promise.sleep(3000);
             }
@@ -230,11 +245,11 @@ export default class MiscCommands {
                   } weapons in my inventory.`;
         }
 
-        this.bot.sendMessage(steamID, reply);
+        return this.bot.sendMessage(steamID, reply);
     }
 
-    paintsCommand(steamID: SteamID): void {
-        this.bot.sendMessage(steamID, '/code ' + JSON.stringify(this.bot.paints, null, 4));
+    async paintsCommand(steamID: SteamID): Promise<void> {
+        return this.bot.sendMessage(steamID, '/code ' + JSON.stringify(this.bot.paints, null, 4));
     }
 
     private getWeaponsStock(showOnlyExist: boolean, weapons: string[]): string[] {

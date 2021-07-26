@@ -52,27 +52,41 @@ export default class PricelistManagerCommands {
 
         try {
             priceKey = priceKey ? priceKey : params.sku;
-            await this.bot.pricelist
-                .addPrice(priceKey, params as EntryData, true, PricelistChangedSource.Command)
-                .then(entry => {
-                    this.bot.sendMessage(steamID, `✅ Added "${entry.name}" (${priceKey})` + generateAddedReply(this.bot, isPremium, entry));
-                });
+            const entry = await this.bot.pricelist.addPrice(
+                priceKey,
+                params as EntryData,
+                true,
+                PricelistChangedSource.Command
+            );
+            return this.bot.sendMessage(
+                steamID,
+                `✅ Added "${entry.name}" (${priceKey})` + generateAddedReply(this.bot, isPremium, entry)
+            );
         } catch (err) {
-            this.bot.sendMessage(steamID, `❌ Failed to add the item to the pricelist: ${(err as Error).message}`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Failed to add the item to the pricelist: ${(err as Error).message}`
+            );
         }
     }
 
     async addbulkCommand(steamID: SteamID, message: string): Promise<void> {
         if (PricelistManagerCommands.isBulkOperation) {
-            return this.bot.sendMessage(steamID, `❌ Bulk operation is still in progress. Please wait until it's completed.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk operation is still in progress. Please wait until it's completed.`
+            );
         }
 
         const commandRemoved = CommandParser.removeCommand(removeLinkProtocol(message));
 
         if (!commandRemoved.includes('\n')) {
-            return this.bot.sendMessage(steamID, `❌ Incorrect usage. If you want to only add one item, please use the !add command.\n` +
-                `Correct usage example: !addbulk sku=5021;6\nsku=30186;6&intent=buy\nsku=30994;6&sell.metal=4&buy.metal=1\n...` +
-                `(separated by a new line)`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Incorrect usage. If you want to only add one item, please use the !add command.\n` +
+                    `Correct usage example: !addbulk sku=5021;6\nsku=30186;6&intent=buy\nsku=30994;6&sell.metal=4&buy.metal=1\n...` +
+                    `(separated by a new line)`
+            );
         }
 
         const itemsToAdd = commandRemoved.split('\n').filter(itemString => itemString !== '');
@@ -168,7 +182,10 @@ export default class PricelistManagerCommands {
         }
 
         if (failedNotUsingItemOrSkuParam === count) {
-            return this.bot.sendMessage(steamID, `❌ Bulk add operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk add operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`
+            );
         }
 
         let added = 0;
@@ -186,7 +203,10 @@ export default class PricelistManagerCommands {
 
                     const firstOrLast = i < 1 ? limit : i10 + (errorCount - i10);
 
-                    bot.sendMessage(steamID, errorMessages.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n'));
+                    await bot.sendMessage(
+                        steamID,
+                        errorMessages.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n')
+                    );
 
                     await sleepasync().Promise.sleep(3000);
                 }
@@ -210,81 +230,99 @@ export default class PricelistManagerCommands {
 
         if (isHasAutoprice) {
             try {
-                this.bot.sendMessage(steamID, `⌛ Getting pricelist from the pricer...`);
+                await this.bot.sendMessage(steamID, `⌛ Getting pricelist from the pricer...`);
                 const pricerPricelist = await this.priceSource.getPricelist('bptf');
                 const items = pricerPricelist.items;
 
-                this.bot.sendMessage(steamID, `⌛ Got pricer pricelist, adding items to our pricelist...`);
+                await this.bot.sendMessage(steamID, `⌛ Got pricer pricelist, adding items to our pricelist...`);
 
                 for (let i = 0; i < count2; i++) {
                     const params = savedParams[i];
                     const isLast = count2 - i === 1;
 
-                    this.bot.pricelist
-                        .addPrice(params.sku, params, true, PricelistChangedSource.Command, true, items, isLast)
-                        .then(() => added++)
-                        .catch(err => {
-                            errorMessages.push(
-                                `❌ Error adding ${this.bot.schema.getName(SKU.fromString(params.sku))} (${
-                                    params.sku
-                                }): ${(err as Error)?.message}`
-                            );
-                            failed++;
-                        })
-                        .finally(() => {
-                            if (isLast) {
-                                PricelistManagerCommands.isSending = true;
-                                this.bot.sendMessage(steamID, `✅ Bulk add successful: ${added} added, ${failed} failed`);
-
-                                void sendErrors(this.bot);
-
-                                PricelistManagerCommands.isBulkOperation = false;
-                            }
-                        });
-                }
-            } catch (err) {
-                return this.bot.sendMessage(steamID, `❌ Bulk add operation aborted: Failed to obtain pricelist from pricer: ${(err as Error)?.message}`);
-            }
-        } else {
-            for (let i = 0; i < count2; i++) {
-                const params = savedParams[i];
-                const isLast = count2 - i === 1;
-
-                this.bot.pricelist
-                    .addPrice(params.sku, params, true, PricelistChangedSource.Command, true)
-                    .then(() => added++)
-                    .catch(err => {
+                    try {
+                        await this.bot.pricelist.addPrice(
+                            params.sku,
+                            params,
+                            true,
+                            PricelistChangedSource.Command,
+                            true,
+                            items,
+                            isLast
+                        );
+                        added++;
+                    } catch (err) {
                         errorMessages.push(
                             `❌ Error adding ${this.bot.schema.getName(SKU.fromString(params.sku))} (${params.sku}): ${
                                 (err as Error)?.message
                             }`
                         );
                         failed++;
-                    })
-                    .finally(() => {
+                    } finally {
                         if (isLast) {
                             PricelistManagerCommands.isSending = true;
-                            this.bot.sendMessage(steamID, `✅ Bulk add successful: ${added} added, ${failed} failed`);
+                            await this.bot.sendMessage(
+                                steamID,
+                                `✅ Bulk add successful: ${added} added, ${failed} failed`
+                            );
 
-                            void sendErrors(this.bot);
+                            await sendErrors(this.bot);
 
                             PricelistManagerCommands.isBulkOperation = false;
                         }
-                    });
+                    }
+                }
+            } catch (err) {
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Bulk add operation aborted: Failed to obtain pricelist from pricer: ${(err as Error)?.message}`
+                );
+            }
+        } else {
+            for (let i = 0; i < count2; i++) {
+                const params = savedParams[i];
+                const isLast = count2 - i === 1;
+
+                try {
+                    await this.bot.pricelist.addPrice(params.sku, params, true, PricelistChangedSource.Command, true);
+                    added++;
+                } catch (err) {
+                    errorMessages.push(
+                        `❌ Error adding ${this.bot.schema.getName(SKU.fromString(params.sku))} (${params.sku}): ${
+                            (err as Error)?.message
+                        }`
+                    );
+                    failed++;
+                } finally {
+                    if (isLast) {
+                        PricelistManagerCommands.isSending = true;
+                        await this.bot.sendMessage(steamID, `✅ Bulk add successful: ${added} added, ${failed} failed`);
+
+                        await sendErrors(this.bot);
+
+                        PricelistManagerCommands.isBulkOperation = false;
+                    }
+                }
             }
         }
     }
 
     async autoAddCommand(steamID: SteamID, message: string): Promise<void> {
         if (AutoAddQueue.isRunning()) {
-            return this.bot.sendMessage(steamID, `❌ Autoadd is still running. Please wait until it's completed or send !stopautoadd to stop.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Autoadd is still running. Please wait until it's completed or send !stopautoadd to stop.`
+            );
         }
 
         const params = CommandParser.parseParams(CommandParser.removeCommand(removeLinkProtocol(message)));
 
         if (params.sku !== undefined || params.name !== undefined || params.defindex !== undefined) {
-            return this.bot.sendMessage(steamID, `❌ Please only define item listing settings parameters, more info:` +
-                ` https://github.com/TF2Autobot/tf2autobot/wiki/Listing-settings-parameters`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Please only define item listing settings parameters, more info:` +
+                    ` https://github.com/TF2Autobot/tf2autobot/wiki/Listing-settings-parameters`
+            );
         }
 
         if (!params) {
@@ -329,14 +367,17 @@ export default class PricelistManagerCommands {
         const aMin = 60 * 1000;
         const anHour = 60 * 60 * 1000;
 
-        await this.bot.sendMessage(steamID, `⏳ Running automatic add items... Total items to add: ${total}` +
-            `\n${params.autoprice ? 2 : 1} seconds in between items, so it will be about ${
-                totalTime < aMin
-                    ? `${Math.round(totalTime / aSecond)} seconds`
-                    : totalTime < anHour
-                    ? `${Math.round(totalTime / aMin)} minutes`
-                    : `${Math.round(totalTime / anHour)} hours`
-            } to complete. Send "!stopautoadd" to abort.`);
+        await this.bot.sendMessage(
+            steamID,
+            `⏳ Running automatic add items... Total items to add: ${total}` +
+                `\n${params.autoprice ? 2 : 1} seconds in between items, so it will be about ${
+                    totalTime < aMin
+                        ? `${Math.round(totalTime / aSecond)} seconds`
+                        : totalTime < anHour
+                        ? `${Math.round(totalTime / aMin)} minutes`
+                        : `${Math.round(totalTime / anHour)} hours`
+                } to complete. Send "!stopautoadd" to abort.`
+        );
 
         const autoAdd = new AutoAddQueue(this.bot, steamID, skusFromPricelist, params, isPremium);
         AutoAddQueue.addJob();
@@ -360,13 +401,19 @@ export default class PricelistManagerCommands {
             //Check for invalid usages first
             if (!params.withgroup && !params.withoutgroup) {
                 if (typeof params.note === 'object') {
-                    return this.bot.sendMessage(steamID, `❌ Please specify "withgroup" or "withoutgroup" to change note.` +
-                        `\nExample: "!update all=true&withgroup=<groupName>&note.buy=<yourNote>"`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ Please specify "withgroup" or "withoutgroup" to change note.` +
+                            `\nExample: "!update all=true&withgroup=<groupName>&note.buy=<yourNote>"`
+                    );
                 }
 
                 if (typeof params.buy === 'object' || typeof params.sell === 'object') {
-                    return this.bot.sendMessage(steamID, `❌ Please specify "withgroup" or "withoutgroup" to change buying/selling price.\nExample:\n` +
-                        `"!update all=true&withgroup=<groupName>&(buy.keys|buy.metal)=<buyingPrice>&(sell.keys|sell.metal)=<sellingPrice>"`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ Please specify "withgroup" or "withoutgroup" to change buying/selling price.\nExample:\n` +
+                            `"!update all=true&withgroup=<groupName>&(buy.keys|buy.metal)=<buyingPrice>&(sell.keys|sell.metal)=<sellingPrice>"`
+                    );
                 }
             }
             if (params.promoted) {
@@ -374,7 +421,10 @@ export default class PricelistManagerCommands {
             }
 
             if (params.withgroup && params.withoutgroup) {
-                return this.bot.sendMessage(steamID, `❌ Don't be dumb. Please choose only "withgroup" OR "withoutgroup", not both. Thanks.`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Don't be dumb. Please choose only "withgroup" OR "withoutgroup", not both. Thanks.`
+                );
             }
             const keyPrice = this.bot.pricelist.getKeyPrice;
             if (typeof params.buy === 'object' || typeof params.sell === 'object') {
@@ -505,11 +555,17 @@ export default class PricelistManagerCommands {
                 }
             } else {
                 if (params.withgroup) {
-                    return this.bot.sendMessage(steamID, `❌ There is no entry with "${params.withgroup as string}" group found in your pricelist.`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ There is no entry with "${params.withgroup as string}" group found in your pricelist.`
+                    );
                 } else if (params.withoutgroup) {
-                    return this.bot.sendMessage(steamID, `❌ There is no entry other than "${
-                        params.withoutgroup as string
-                    }" group found in your pricelist.`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ There is no entry other than "${
+                            params.withoutgroup as string
+                        }" group found in your pricelist.`
+                    );
                 }
             }
 
@@ -533,17 +589,17 @@ export default class PricelistManagerCommands {
 
             if (params.autoprice !== true) {
                 await this.bot.handler.onPricelist(pricelist);
-                this.bot.sendMessage(steamID, '✅ Updated pricelist!');
+                await this.bot.sendMessage(steamID, '✅ Updated pricelist!');
 
                 return await this.bot.listings.redoListings();
             }
 
-            this.bot.sendMessage(steamID, '⌛ Updating prices...');
+            await this.bot.sendMessage(steamID, '⌛ Updating prices...');
 
             return this.bot.pricelist
                 .setupPricelist()
                 .then(async () => {
-                    this.bot.sendMessage(steamID, '✅ Updated pricelist!');
+                    await this.bot.sendMessage(steamID, '✅ Updated pricelist!');
                     await this.bot.listings.redoListings();
                 })
                 .catch(err => {
@@ -575,7 +631,10 @@ export default class PricelistManagerCommands {
         const isPremium = this.bot.handler.getBotInfo.premium;
         if (params.promoted !== undefined) {
             if (!isPremium) {
-                return this.bot.sendMessage(steamID, `❌ This account is not Backpack.tf Premium. You can't use "promoted" paramter.`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ This account is not Backpack.tf Premium. You can't use "promoted" paramter.`
+                );
             }
 
             if (typeof params.promoted === 'boolean') {
@@ -586,11 +645,17 @@ export default class PricelistManagerCommands {
                 }
             } else {
                 if (typeof params.promoted !== 'number') {
-                    return this.bot.sendMessage(steamID, '❌ "promoted" parameter must be either 0 (false) or 1 (true)');
+                    return this.bot.sendMessage(
+                        steamID,
+                        '❌ "promoted" parameter must be either 0 (false) or 1 (true)'
+                    );
                 }
 
                 if (params.promoted < 0 || params.promoted > 1) {
-                    return this.bot.sendMessage(steamID, '❌ "promoted" parameter must be either 0 (false) or 1 (true)');
+                    return this.bot.sendMessage(
+                        steamID,
+                        '❌ "promoted" parameter must be either 0 (false) or 1 (true)'
+                    );
                 }
             }
         }
@@ -600,7 +665,10 @@ export default class PricelistManagerCommands {
             let match = this.bot.pricelist.searchByName(params.item as string, false);
 
             if (match === null) {
-                return this.bot.sendMessage(steamID, `❌ I could not find any items in my pricelist that contain "${params.item as string}"`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ I could not find any items in my pricelist that contain "${params.item as string}"`
+                );
             } else if (Array.isArray(match)) {
                 const matchCount = match.length;
                 if (matchCount > 20) {
@@ -692,7 +760,10 @@ export default class PricelistManagerCommands {
         }
 
         if (params.removebuynote && params.removesellnote) {
-            return this.bot.sendMessage(steamID, '❌ Please only use either "removebuynote" or "removesellnote", not both, or if you wish to remove both buy and sell note, please use "removenote".');
+            return this.bot.sendMessage(
+                steamID,
+                '❌ Please only use either "removebuynote" or "removesellnote", not both, or if you wish to remove both buy and sell note, please use "removenote".'
+            );
         }
 
         if (params.removebuynote) {
@@ -741,28 +812,44 @@ export default class PricelistManagerCommands {
             entryData[property] = params[property];
         }
 
-        this.bot.pricelist
-            .updatePrice(params.sku, entryData, true, PricelistChangedSource.Command)
-            .then(entry => {
-                this.bot.sendMessage(steamID, `✅ Updated "${entry.name}" (${entry.sku})` + this.generateUpdateReply(isPremium, itemEntry, entry));
-            })
-            .catch((err: ErrorRequest) => {
-                this.bot.sendMessage(steamID, '❌ Failed to update pricelist entry: ' +
-                    (err.body && err.body.message ? err.body.message : err.message));
-            });
+        try {
+            const entry = await this.bot.pricelist.updatePrice(
+                params.sku,
+                entryData,
+                true,
+                PricelistChangedSource.Command
+            );
+            await this.bot.sendMessage(
+                steamID,
+                `✅ Updated "${entry.name}" (${entry.sku})` + this.generateUpdateReply(isPremium, itemEntry, entry)
+            );
+        } catch (e) {
+            const err = e as ErrorRequest;
+            await this.bot.sendMessage(
+                steamID,
+                '❌ Failed to update pricelist entry: ' +
+                    (err.body && err.body.message ? err.body.message : err.message)
+            );
+        }
     }
 
     async updatebulkCommand(steamID: SteamID, message: string): Promise<void> {
         if (PricelistManagerCommands.isBulkOperation) {
-            return this.bot.sendMessage(steamID, `❌ Bulk operation is still in progress. Please wait until it's completed.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk operation is still in progress. Please wait until it's completed.`
+            );
         }
 
         const commandRemoved = CommandParser.removeCommand(removeLinkProtocol(message));
 
         if (!commandRemoved.includes('\n')) {
-            return this.bot.sendMessage(steamID, `❌ Incorrect usage. If you want to only update one item, please use the !update command.\n` +
-                `Correct usage example: !updatebulk sku=5021;6\nsku=30186;6&intent=buy\nsku=30994;6&sell.metal=4&buy.metal=1\n...` +
-                `(separated by a new line)`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Incorrect usage. If you want to only update one item, please use the !update command.\n` +
+                    `Correct usage example: !updatebulk sku=5021;6\nsku=30186;6&intent=buy\nsku=30994;6&sell.metal=4&buy.metal=1\n...` +
+                    `(separated by a new line)`
+            );
         }
 
         const itemsToUpdate = commandRemoved.split('\n').filter(itemString => itemString !== '');
@@ -780,7 +867,10 @@ export default class PricelistManagerCommands {
             const params = CommandParser.parseParams(itemToUpdate);
 
             if (params.all !== undefined) {
-                return this.bot.sendMessage(steamID, `❌ Bulk update operation aborted: "all" parameter can only be used with the !update command!`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Bulk update operation aborted: "all" parameter can only be used with the !update command!`
+                );
             }
 
             if (params.sku !== undefined && !testSKU(params.sku as string)) {
@@ -865,7 +955,10 @@ export default class PricelistManagerCommands {
 
             if (params.promoted !== undefined) {
                 if (!isPremium) {
-                    return this.bot.sendMessage(steamID, `❌ This account is not Backpack.tf Premium. You can't use "promoted" paramter.`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ This account is not Backpack.tf Premium. You can't use "promoted" paramter.`
+                    );
                 }
 
                 if (typeof params.promoted === 'boolean') {
@@ -876,11 +969,17 @@ export default class PricelistManagerCommands {
                     }
                 } else {
                     if (typeof params.promoted !== 'number') {
-                        return this.bot.sendMessage(steamID, '❌ "promoted" parameter must be either 0 (false) or 1 (true)');
+                        return this.bot.sendMessage(
+                            steamID,
+                            '❌ "promoted" parameter must be either 0 (false) or 1 (true)'
+                        );
                     }
 
                     if (params.promoted < 0 || params.promoted > 1) {
-                        return this.bot.sendMessage(steamID, '❌ "promoted" parameter must be either 0 (false) or 1 (true)');
+                        return this.bot.sendMessage(
+                            steamID,
+                            '❌ "promoted" parameter must be either 0 (false) or 1 (true)'
+                        );
                     }
                 }
             }
@@ -938,7 +1037,10 @@ export default class PricelistManagerCommands {
             }
 
             if (params.removebuynote && params.removesellnote) {
-                return this.bot.sendMessage(steamID, '❌ Please only use either "removebuynote" or "removesellnote", not both, or if you wish to remove both buy and sell note, please use "removenote".');
+                return this.bot.sendMessage(
+                    steamID,
+                    '❌ Please only use either "removebuynote" or "removesellnote", not both, or if you wish to remove both buy and sell note, please use "removenote".'
+                );
             }
 
             if (params.removebuynote) {
@@ -1005,7 +1107,10 @@ export default class PricelistManagerCommands {
 
                     const firstOrLast = i < 1 ? limit : i10 + (errorCount - i10);
 
-                    bot.sendMessage(steamID, errorMessage.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n'));
+                    await bot.sendMessage(
+                        steamID,
+                        errorMessage.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n')
+                    );
 
                     await sleepasync().Promise.sleep(3000);
                 }
@@ -1015,7 +1120,10 @@ export default class PricelistManagerCommands {
         }
 
         if (failedNotUsingItemOrSkuParam === count) {
-            return this.bot.sendMessage(steamID, `❌ Bulk update operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk update operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`
+            );
         }
 
         let isHasAutoprice = false;
@@ -1033,69 +1141,90 @@ export default class PricelistManagerCommands {
 
         if (isHasAutoprice) {
             try {
-                this.bot.sendMessage(steamID, `⌛ Getting pricelist from the pricer...`);
+                await this.bot.sendMessage(steamID, `⌛ Getting pricelist from the pricer...`);
                 const pricerPricelist = await this.priceSource.getPricelist('bptf');
                 const items = pricerPricelist.items;
 
-                this.bot.sendMessage(steamID, `⌛ Got pricer pricelist, updating items...`);
+                await this.bot.sendMessage(steamID, `⌛ Got pricer pricelist, updating items...`);
 
                 for (let i = 0; i < count2; i++) {
                     const params = savedEntryData[i];
                     const isLast = count2 - i === 1;
 
-                    this.bot.pricelist
-                        .updatePrice(params.sku, params, true, PricelistChangedSource.Command, true, items, isLast)
-                        .then(() => updated++)
-                        .catch(err => {
-                            errorMessage.push(
-                                `❌ Error updating ${this.bot.schema.getName(SKU.fromString(params.sku))} (${
-                                    params.sku
-                                }): ${(err as Error)?.message}`
-                            );
-                            failed++;
-                        })
-                        .finally(() => {
-                            if (isLast) {
-                                PricelistManagerCommands.isSending = true;
-                                this.bot.sendMessage(steamID, `✅ Bulk update successful: ${updated} updated, ${failed} failed`);
-
-                                void sendErrors(this.bot);
-
-                                PricelistManagerCommands.isBulkOperation = false;
-                            }
-                        });
-                }
-            } catch (err) {
-                return this.bot.sendMessage(steamID, `❌ Bulk update operation aborted: Failed to obtain pricelist from pricer: ${
-                    (err as Error)?.message
-                }`);
-            }
-        } else {
-            for (let i = 0; i < count2; i++) {
-                const params = savedEntryData[i];
-                const isLast = count2 - i === 1;
-
-                this.bot.pricelist
-                    .updatePrice(params.sku, params, true, PricelistChangedSource.Command, true)
-                    .then(() => updated++)
-                    .catch(err => {
+                    try {
+                        await this.bot.pricelist.updatePrice(
+                            params.sku,
+                            params,
+                            true,
+                            PricelistChangedSource.Command,
+                            true,
+                            items,
+                            isLast
+                        );
+                        updated++;
+                    } catch (err) {
                         errorMessage.push(
                             `❌ Error updating ${this.bot.schema.getName(SKU.fromString(params.sku))} (${
                                 params.sku
                             }): ${(err as Error)?.message}`
                         );
                         failed++;
-                    })
-                    .finally(() => {
+                    } finally {
                         if (isLast) {
                             PricelistManagerCommands.isSending = true;
-                            this.bot.sendMessage(steamID, `✅ Bulk update successful: ${updated} updated, ${failed} failed`);
+                            await this.bot.sendMessage(
+                                steamID,
+                                `✅ Bulk update successful: ${updated} updated, ${failed} failed`
+                            );
 
-                            void sendErrors(this.bot);
+                            await sendErrors(this.bot);
 
                             PricelistManagerCommands.isBulkOperation = false;
                         }
-                    });
+                    }
+                }
+            } catch (err) {
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Bulk update operation aborted: Failed to obtain pricelist from pricer: ${
+                        (err as Error)?.message
+                    }`
+                );
+            }
+        } else {
+            for (let i = 0; i < count2; i++) {
+                const params = savedEntryData[i];
+                const isLast = count2 - i === 1;
+
+                try {
+                    await this.bot.pricelist.updatePrice(
+                        params.sku,
+                        params,
+                        true,
+                        PricelistChangedSource.Command,
+                        true
+                    );
+                    updated++;
+                } catch (err) {
+                    errorMessage.push(
+                        `❌ Error updating ${this.bot.schema.getName(SKU.fromString(params.sku))} (${params.sku}): ${
+                            (err as Error)?.message
+                        }`
+                    );
+                    failed++;
+                } finally {
+                    if (isLast) {
+                        PricelistManagerCommands.isSending = true;
+                        await this.bot.sendMessage(
+                            steamID,
+                            `✅ Bulk update successful: ${updated} updated, ${failed} failed`
+                        );
+
+                        await sendErrors(this.bot);
+
+                        PricelistManagerCommands.isBulkOperation = false;
+                    }
+                }
             }
         }
     }
@@ -1165,7 +1294,10 @@ export default class PricelistManagerCommands {
                 return this.bot.sendMessage(steamID, '❌ Your pricelist is already empty!');
             }
             if (params.withgroup && params.withoutgroup) {
-                return this.bot.sendMessage(steamID, `❌ Don't be dumb. Please choose only "withgroup" OR "withoutgroup", not both. Thanks.`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Don't be dumb. Please choose only "withgroup" OR "withoutgroup", not both. Thanks.`
+                );
             }
 
             const pricelist = this.bot.pricelist.getPrices;
@@ -1184,18 +1316,24 @@ export default class PricelistManagerCommands {
 
             const removeCount = pricelistLength - Object.keys(newPricelist).length;
             if (params.i_am_sure !== 'yes_i_am') {
-                return this.bot.sendMessage(steamID, '/pre ⚠️ Are you sure that you want to remove ' +
-                    pluralize('item', removeCount, true) +
-                    '? Try again with i_am_sure=yes_i_am');
+                return this.bot.sendMessage(
+                    steamID,
+                    '/pre ⚠️ Are you sure that you want to remove ' +
+                        pluralize('item', removeCount, true) +
+                        '? Try again with i_am_sure=yes_i_am'
+                );
             }
 
             if (params.withgroup || params.withoutgroup) {
                 try {
                     await this.bot.pricelist.setNewPricelist(newPricelist);
-                    this.bot.sendMessage(steamID, `✅ Removed ${removeCount} items from pricelist.`);
+                    await this.bot.sendMessage(steamID, `✅ Removed ${removeCount} items from pricelist.`);
                     return await this.bot.listings.redoListings();
                 } catch (err) {
-                    return this.bot.sendMessage(steamID, `❌ Failed to clear pricelist with/without group: ${(err as Error).message}`);
+                    return this.bot.sendMessage(
+                        steamID,
+                        `❌ Failed to clear pricelist with/without group: ${(err as Error).message}`
+                    );
                 }
             } else {
                 try {
@@ -1216,7 +1354,10 @@ export default class PricelistManagerCommands {
             let match = this.bot.pricelist.searchByName(params.item as string, false);
 
             if (match === null) {
-                return this.bot.sendMessage(steamID, `❌ I could not find any items in my pricelist that contain "${params.item as string}"`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ I could not find any items in my pricelist that contain "${params.item as string}"`
+                );
             } else if (Array.isArray(match)) {
                 const matchCount = match.length;
                 if (matchCount > 20) {
@@ -1252,27 +1393,31 @@ export default class PricelistManagerCommands {
 
         params.sku = fixSKU(params.sku);
 
-        this.bot.pricelist
-            .removePrice(params.sku as string, true)
-            .then(entry => {
-                this.bot.sendMessage(steamID, `✅ Removed "${entry.name}".`);
-            })
-            .catch(err => {
-                this.bot.sendMessage(steamID, `❌ Failed to remove pricelist entry: ${(err as Error).message}`);
-            });
+        try {
+            const entry = await this.bot.pricelist.removePrice(params.sku as string, true);
+            return this.bot.sendMessage(steamID, `✅ Removed "${entry.name}".`);
+        } catch (err) {
+            return this.bot.sendMessage(steamID, `❌ Failed to remove pricelist entry: ${(err as Error).message}`);
+        }
     }
 
     async removebulkCommand(steamID: SteamID, message: string): Promise<void> {
         if (PricelistManagerCommands.isBulkOperation) {
-            return this.bot.sendMessage(steamID, `❌ Bulk operation is still in progress. Please wait until it's completed.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk operation is still in progress. Please wait until it's completed.`
+            );
         }
 
         const commandRemoved = CommandParser.removeCommand(removeLinkProtocol(message));
 
         if (!commandRemoved.includes('\n')) {
-            return this.bot.sendMessage(steamID, `❌ Incorrect usage. If you want to only remove one item, please use the !remove command.\n` +
-                `Correct usage example: !removebulk sku=5021;6\nsku=30186;6\nsku=30994;6\nitem=Genuine Horace\n...` +
-                `(separated by a new line)`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Incorrect usage. If you want to only remove one item, please use the !remove command.\n` +
+                    `Correct usage example: !removebulk sku=5021;6\nsku=30186;6\nsku=30994;6\nitem=Genuine Horace\n...` +
+                    `(separated by a new line)`
+            );
         }
 
         const itemsToRemove = commandRemoved.split('\n').filter(itemString => itemString !== '');
@@ -1288,7 +1433,10 @@ export default class PricelistManagerCommands {
             const params = CommandParser.parseParams(itemToRemove);
 
             if (params.all !== undefined) {
-                return this.bot.sendMessage(steamID, `❌ Bulk remove operation aborted: "all" parameter can only be used with the !remove command!`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ Bulk remove operation aborted: "all" parameter can only be used with the !remove command!`
+                );
             }
 
             if (params.sku !== undefined && !testSKU(params.sku as string)) {
@@ -1354,7 +1502,10 @@ export default class PricelistManagerCommands {
 
                     const firstOrLast = i < 1 ? limit : i10 + (errorCount - i10);
 
-                    bot.sendMessage(steamID, errorMessage.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n'));
+                    await bot.sendMessage(
+                        steamID,
+                        errorMessage.slice(i10, last ? firstOrLast : (i + 1) * limit).join('\n')
+                    );
 
                     await sleepasync().Promise.sleep(3000);
                 }
@@ -1364,7 +1515,10 @@ export default class PricelistManagerCommands {
         }
 
         if (failedNotUsingItemOrSkuParam === count) {
-            return this.bot.sendMessage(steamID, `❌ Bulk remove operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`);
+            return this.bot.sendMessage(
+                steamID,
+                `❌ Bulk remove operation aborted: Please only use "sku" or "item" as the item identifying paramater. Thank you.`
+            );
         }
 
         PricelistManagerCommands.isBulkOperation = true;
@@ -1375,27 +1529,29 @@ export default class PricelistManagerCommands {
             const sku = skusToRemove[i];
             const isLast = count2 - i === 1;
 
-            this.bot.pricelist
-                .removePrice(sku, true)
-                .then(() => removed++)
-                .catch(err => {
-                    errorMessage.push(
-                        `❌ Error removing ${this.bot.schema.getName(SKU.fromString(sku))} (${sku}): ${
-                            (err as Error)?.message
-                        }`
+            try {
+                await this.bot.pricelist.removePrice(sku, true);
+                removed++;
+            } catch (err) {
+                errorMessage.push(
+                    `❌ Error removing ${this.bot.schema.getName(SKU.fromString(sku))} (${sku}): ${
+                        (err as Error)?.message
+                    }`
+                );
+                failed++;
+            } finally {
+                if (isLast) {
+                    PricelistManagerCommands.isSending = true;
+                    await this.bot.sendMessage(
+                        steamID,
+                        `✅ Bulk remove successful: ${removed} removed, ${failed} failed`
                     );
-                    failed++;
-                })
-                .finally(() => {
-                    if (isLast) {
-                        PricelistManagerCommands.isSending = true;
-                        this.bot.sendMessage(steamID, `✅ Bulk remove successful: ${removed} removed, ${failed} failed`);
 
-                        void sendErrors(this.bot);
+                    await sendErrors(this.bot);
 
-                        PricelistManagerCommands.isBulkOperation = false;
-                    }
-                });
+                    PricelistManagerCommands.isBulkOperation = false;
+                }
+            }
         }
     }
 
@@ -1406,7 +1562,7 @@ export default class PricelistManagerCommands {
         return this.bot.sendMessage(steamID, `🏷️ Current listings slots: ${currentUsedSlots}/${listingsCap}`);
     }
 
-    getCommand(steamID: SteamID, message: string): Promise<void> {
+    async getCommand(steamID: SteamID, message: string): Promise<void> {
         const params = CommandParser.parseParams(CommandParser.removeCommand(removeLinkProtocol(message)));
         if (params.sku !== undefined && !testSKU(params.sku as string)) {
             return this.bot.sendMessage(steamID, `❌ "sku" should not be empty or wrong format.`);
@@ -1417,7 +1573,10 @@ export default class PricelistManagerCommands {
             let match = this.bot.pricelist.searchByName(params.item as string, false);
 
             if (match === null) {
-                return this.bot.sendMessage(steamID, `❌ I could not find any items in my pricelist that contain "${params.item as string}"`);
+                return this.bot.sendMessage(
+                    steamID,
+                    `❌ I could not find any items in my pricelist that contain "${params.item as string}"`
+                );
             } else if (Array.isArray(match)) {
                 const matchCount = match.length;
                 if (matchCount > 20) {
@@ -1459,9 +1618,9 @@ export default class PricelistManagerCommands {
 
         const match = this.bot.pricelist.getPrice(params.sku as string);
         if (match === null) {
-            this.bot.sendMessage(steamID, `❌ Could not find item "${params.sku as string}" in the pricelist`);
+            return this.bot.sendMessage(steamID, `❌ Could not find item "${params.sku as string}" in the pricelist`);
         } else {
-            this.bot.sendMessage(steamID, `/code ${this.generateOutput(match)}`);
+            return this.bot.sendMessage(steamID, `/code ${this.generateOutput(match)}`);
         }
     }
 
@@ -1505,14 +1664,17 @@ export default class PricelistManagerCommands {
         const limit = params.limit === undefined ? 15 : (params.limit as number) <= 0 ? -1 : (params.limit as number);
 
         PricelistManagerCommands.isSending = true;
-        this.bot.sendMessage(steamID, `Found ${pluralize('item', listCount, true)} in your pricelist${
+        await this.bot.sendMessage(
+            steamID,
+            `Found ${pluralize('item', listCount, true)} in your pricelist${
                 limit !== -1 && params.limit === undefined && listCount > 15
                     ? `, showing only ${limit} items (you can send with parameter limit=-1 to list all)`
                     : `${
-                        limit < listCount && limit > 0 && params.limit !== undefined ? ` (limit set to ${limit})` : ''
-                    }.`
+                          limit < listCount && limit > 0 && params.limit !== undefined ? ` (limit set to ${limit})` : ''
+                      }.`
             }\n\n 📌 #. "sku" - "name" ("Current Stock", "min", "max", "intent", "enabled", "autoprice", "group", "isPartialPriced", *"promoted")\n\n` +
-            '* - Only shown if your account is Backpack.tf Premium\n\n.');
+                '* - Only shown if your account is Backpack.tf Premium\n\n.'
+        );
 
         const applyLimit = limit === -1 ? listCount : limit;
         const loops = Math.ceil(applyLimit / 15);
@@ -1523,7 +1685,7 @@ export default class PricelistManagerCommands {
 
             const firstOrLast = i < 1 && limit > 0 && limit < 15 ? limit : i15 + (applyLimit - i15);
 
-            this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
+            await this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
 
             await sleepasync().Promise.sleep(3000);
         }
@@ -1554,8 +1716,11 @@ export default class PricelistManagerCommands {
 
         if (Object.keys(pricelist).length === 0) {
             if (!isPpuEnabled) {
-                return this.bot.sendMessage(steamID, '❌ This feature is disabled. Read more: ' +
-                    'https://github.com/TF2Autobot/tf2autobot/wiki/Configure-your-options.json-file#--partial-price-update--');
+                return this.bot.sendMessage(
+                    steamID,
+                    '❌ This feature is disabled. Read more: ' +
+                        'https://github.com/TF2Autobot/tf2autobot/wiki/Configure-your-options.json-file#--partial-price-update--'
+                );
             }
 
             return this.bot.sendMessage(steamID, '❌ No items with ppu enabled found.');
@@ -1582,20 +1747,23 @@ export default class PricelistManagerCommands {
         const limit = params.limit === undefined ? 15 : (params.limit as number) <= 0 ? -1 : (params.limit as number);
 
         PricelistManagerCommands.isSending = true;
-        this.bot.sendMessage(steamID, (!isPpuEnabled ? '⚠️ Partial Price Update disabled, but found ' : 'Found ') +
-            `${pluralize('item', listCount, true)} in your pricelist that ${pluralize(
-                'is',
-                listCount,
-                true
-            )} currently being partial priced${
-                limit !== -1 && params.limit === undefined && listCount > 15
-                    ? `, showing only ${limit} items (you can send with parameter limit=-1 to list all)`
-                    : `${
-                        limit < listCount && limit > 0 && params.limit !== undefined
-                            ? ` (limit set to ${limit})`
-                            : ''
-                    }.`
-            }`);
+        await this.bot.sendMessage(
+            steamID,
+            (!isPpuEnabled ? '⚠️ Partial Price Update disabled, but found ' : 'Found ') +
+                `${pluralize('item', listCount, true)} in your pricelist that ${pluralize(
+                    'is',
+                    listCount,
+                    true
+                )} currently being partial priced${
+                    limit !== -1 && params.limit === undefined && listCount > 15
+                        ? `, showing only ${limit} items (you can send with parameter limit=-1 to list all)`
+                        : `${
+                              limit < listCount && limit > 0 && params.limit !== undefined
+                                  ? ` (limit set to ${limit})`
+                                  : ''
+                          }.`
+                }`
+        );
 
         const applyLimit = limit === -1 ? listCount : limit;
         const loops = Math.ceil(applyLimit / 15);
@@ -1606,7 +1774,7 @@ export default class PricelistManagerCommands {
 
             const firstOrLast = i < 1 && limit > 0 && limit < 15 ? limit : i15 + (applyLimit - i15);
 
-            this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
+            await this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
 
             await sleepasync().Promise.sleep(3000);
         }
@@ -1632,8 +1800,11 @@ export default class PricelistManagerCommands {
                 params.isPartialPriced !== undefined
             )
         ) {
-            return this.bot.sendMessage(steamID, '⚠️ Only parameters available for !find command: enabled, max, min, intent,' +
-                ' promoted, autoprice, isPartialPriced, or group\nExample: !find intent=bank&max=2');
+            return this.bot.sendMessage(
+                steamID,
+                '⚠️ Only parameters available for !find command: enabled, max, min, intent,' +
+                    ' promoted, autoprice, isPartialPriced, or group\nExample: !find intent=bank&max=2'
+            );
         }
 
         const pricelist = this.bot.pricelist.getPrices;
@@ -1675,7 +1846,10 @@ export default class PricelistManagerCommands {
                 }
 
                 if (params.promoted < 0 || params.promoted > 1) {
-                    return this.bot.sendMessage(steamID, '⚠️ "promoted" parameter must be either 0 (false) or 1 (true)');
+                    return this.bot.sendMessage(
+                        steamID,
+                        '⚠️ "promoted" parameter must be either 0 (false) or 1 (true)'
+                    );
                 }
                 filter = filter.filter(entry => entry.promoted === params.promoted);
             }
@@ -1690,7 +1864,10 @@ export default class PricelistManagerCommands {
             }
 
             if (typeof params.intent !== 'number' || params.intent < 0) {
-                return this.bot.sendMessage(steamID, '⚠️ intent parameter must be "buy", "sell", or "bank" OR an integer of "0", "1" or "2" respectively');
+                return this.bot.sendMessage(
+                    steamID,
+                    '⚠️ intent parameter must be "buy", "sell", or "bank" OR an integer of "0", "1" or "2" respectively'
+                );
             }
             filter = filter.filter(entry => entry.intent === params.intent);
         }
@@ -1741,7 +1918,7 @@ export default class PricelistManagerCommands {
 
         const filterCount = filter.length;
         if (filterCount === 0) {
-            this.bot.sendMessage(steamID, `No items found with ${display.join('&')}.`);
+            await this.bot.sendMessage(steamID, `No items found with ${display.join('&')}.`);
         } else {
             const isPremium = this.bot.handler.getBotInfo.premium;
 
@@ -1763,16 +1940,19 @@ export default class PricelistManagerCommands {
                 params.limit === undefined ? 15 : (params.limit as number) <= 0 ? -1 : (params.limit as number);
 
             PricelistManagerCommands.isSending = true;
-            this.bot.sendMessage(steamID, `Found ${pluralize('item', filterCount, true)} with ${display.join('&')}${
+            await this.bot.sendMessage(
+                steamID,
+                `Found ${pluralize('item', filterCount, true)} with ${display.join('&')}${
                     limit !== -1 && params.limit === undefined && listCount > 15
                         ? `, showing only ${limit} items (you can send with parameter limit=-1 to list all)`
                         : `${
-                            limit < listCount && limit > 0 && params.limit !== undefined
-                                ? ` (limit set to ${limit})`
-                                : ''
-                        }.`
+                              limit < listCount && limit > 0 && params.limit !== undefined
+                                  ? ` (limit set to ${limit})`
+                                  : ''
+                          }.`
                 }\n\n 📌 #. "sku" - "name" ("Current Stock", "min", "max", "intent", "enabled", "autoprice", "group", "isPartialPriced", *"promoted",)\n\n` +
-                '* - Only shown if your account is Backpack.tf Premium.\n\n.');
+                    '* - Only shown if your account is Backpack.tf Premium.\n\n.'
+            );
 
             const applyLimit = limit === -1 ? listCount : limit;
             const loops = Math.ceil(applyLimit / 15);
@@ -1783,7 +1963,7 @@ export default class PricelistManagerCommands {
 
                 const firstOrLast = i < 1 && limit > 0 && limit < 15 ? limit : i15 + (applyLimit - i15);
 
-                this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
+                await this.bot.sendMessage(steamID, list.slice(i15, last ? firstOrLast : (i + 1) * 15).join('\n'));
 
                 await sleepasync().Promise.sleep(3000);
             }
@@ -2036,47 +2216,64 @@ class AutoAddQueue {
             this.skipped++;
             const remaining = this.total - this.added - this.skipped - this.failed;
 
-            this.bot.sendMessage(this.steamID, `----------\n⚠️ ${this.bot.schema.getName(SKU.fromString(this.sku))} (${
+            await this.bot.sendMessage(
+                this.steamID,
+                `----------\n⚠️ ${this.bot.schema.getName(SKU.fromString(this.sku))} (${
                     this.sku
                 }) already in pricelist, skipping...` +
-                `\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`);
+                    `\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`
+            );
 
             this.dequeue();
 
             if (this.isEmpty) {
                 AutoAddQueue.removeJob();
-                return this.bot.sendMessage(this.steamID, `----------\n✅ Done, summary: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total`);
+                return this.bot.sendMessage(
+                    this.steamID,
+                    `----------\n✅ Done, summary: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total`
+                );
             }
 
-            void this.executeAutoAdd();
+            await this.executeAutoAdd();
         } else {
-            this.bot.pricelist
-                .addPrice(this.sku, this.params as EntryData, true, PricelistChangedSource.Command)
-                .then(entry => {
-                    this.added++;
-                    const remaining = this.total - this.added - this.skipped - this.failed;
+            try {
+                const entry = await this.bot.pricelist.addPrice(
+                    this.sku,
+                    this.params as EntryData,
+                    true,
+                    PricelistChangedSource.Command
+                );
+                this.added++;
+                const remaining = this.total - this.added - this.skipped - this.failed;
 
-                    this.bot.sendMessage(this.steamID, `----------\n✅ Added "${entry.name}" (${entry.sku})` +
+                await this.bot.sendMessage(
+                    this.steamID,
+                    `----------\n✅ Added "${entry.name}" (${entry.sku})` +
                         generateAddedReply(this.bot, this.isPremium, entry) +
-                        `\n\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`);
-                })
-                .catch(err => {
-                    this.failed++;
-                    const remaining = this.total - this.added - this.skipped - this.failed;
+                        `\n\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`
+                );
+            } catch (err) {
+                this.failed++;
+                const remaining = this.total - this.added - this.skipped - this.failed;
 
-                    this.bot.sendMessage(this.steamID, `----------\n❌ Failed to add the item to the pricelist: ${(err as Error).message}` +
-                        `\n\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`);
-                })
-                .finally(() => {
-                    this.dequeue();
+                await this.bot.sendMessage(
+                    this.steamID,
+                    `----------\n❌ Failed to add the item to the pricelist: ${(err as Error).message}` +
+                        `\n\n📜 Status: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total, ${remaining} remaining`
+                );
+            } finally {
+                this.dequeue();
 
-                    if (this.isEmpty) {
-                        AutoAddQueue.removeJob();
-                        return this.bot.sendMessage(this.steamID, `----------\n✅ Done, summary: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total`);
-                    }
+                if (this.isEmpty) {
+                    AutoAddQueue.removeJob();
+                    await this.bot.sendMessage(
+                        this.steamID,
+                        `----------\n✅ Done, summary: ${this.added} added, ${this.skipped} skipped, ${this.failed} failed / ${this.total} total`
+                    );
+                }
 
-                    void this.executeAutoAdd();
-                });
+                await this.executeAutoAdd();
+            }
         }
     }
 

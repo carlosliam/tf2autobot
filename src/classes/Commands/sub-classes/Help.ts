@@ -1,5 +1,5 @@
 import SteamID from 'steamid';
-import sleepasync from 'sleep-async';
+import * as timersPromises from 'timers/promises';
 import Bot from '../../Bot';
 
 export default class HelpCommands {
@@ -48,7 +48,7 @@ export default class HelpCommands {
         );
 
         if (isAdmin) {
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Pricelist manager ===✨\n- ' +
@@ -71,7 +71,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Bot manager ===✨\n- ' +
@@ -101,7 +101,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Crafting ===✨\n- ' +
@@ -111,7 +111,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Bot status ===✨\n- ' +
@@ -124,7 +124,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Manual review ===✨\n- ' +
@@ -139,7 +139,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Request ===✨\n- ' +
@@ -156,7 +156,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Configuration manager (options.json) ===✨\n- ' +
@@ -167,7 +167,7 @@ export default class HelpCommands {
                     ].join('\n- ')
             );
 
-            await sleepasync().Promise.sleep(2000);
+            await timersPromises.setTimeout(2000);
             this.bot.sendMessage(
                 steamID,
                 '.\n✨=== Misc ===✨\n- ' +

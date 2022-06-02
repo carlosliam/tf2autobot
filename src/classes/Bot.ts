@@ -13,7 +13,7 @@ import async from 'async';
 import semver from 'semver';
 import axios from 'axios';
 
-import sleepasync from 'sleep-async';
+import * as timersPromises from 'timers/promises';
 
 import InventoryManager from './InventoryManager';
 import Pricelist, { EntryData, PricesDataObject } from './Pricelist';
@@ -323,7 +323,7 @@ export default class Bot {
                     []
                 );
 
-                await sleepasync().Promise.sleep(1000);
+                await timersPromises.setTimeout(1000);
 
                 const messages: string[] = [];
 
@@ -350,7 +350,7 @@ export default class Bot {
                 }
 
                 for (const message of messages) {
-                    await sleepasync().Promise.sleep(1000);
+                    await timersPromises.setTimeout(1000);
                     this.messageAdmins('version', message, []);
                 }
             }
